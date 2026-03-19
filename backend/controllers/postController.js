@@ -1,8 +1,6 @@
 const db = require('../database');
 
-// ─────────────────────────────────────────────────────────────
 // Helper: resolve a poster's display name from the DB
-// ─────────────────────────────────────────────────────────────
 async function getPosterName(posterType, posterId) {
   let query, params;
   if (posterType === 'student') {
@@ -27,12 +25,7 @@ async function getPosterName(posterType, posterId) {
   return rows[0] || { name: 'Unknown User', profile_photo_url: null };
 }
 
-
-// ─────────────────────────────────────────────────────────────
 // GET /api/posts/feed
-// Returns paginated feed (latest first) with poster info
-// Query params: page (default 1), limit (default 20)
-// ─────────────────────────────────────────────────────────────
 exports.getFeed = async (req, res) => {
   try {
     const page  = Math.max(parseInt(req.query.page  || 1), 1);
@@ -48,7 +41,6 @@ exports.getFeed = async (req, res) => {
       [limit, offset]
     );
 
-    // Attach poster name + avatar for each post
     const enriched = await Promise.all(
       posts.map(async (post) => {
         const poster = await getPosterName(post.poster_type, post.poster_id);
@@ -63,11 +55,7 @@ exports.getFeed = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // POST /api/posts
-// Body: { poster_type, poster_id, content, media_url? }
-// ─────────────────────────────────────────────────────────────
 exports.createPost = async (req, res) => {
   try {
     const { poster_type, poster_id, content, media_url } = req.body;
@@ -85,10 +73,7 @@ exports.createPost = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // DELETE /api/posts/:postId
-// ─────────────────────────────────────────────────────────────
 exports.deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -100,11 +85,7 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // POST /api/posts/:postId/like
-// Body: { liker_type, liker_id }
-// ─────────────────────────────────────────────────────────────
 exports.likePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -116,7 +97,6 @@ exports.likePost = async (req, res) => {
       'INSERT IGNORE INTO post_likes (post_id, liker_type, liker_id) VALUES (?, ?, ?)',
       [postId, liker_type, liker_id]
     );
-    // Return updated count
     const [[{ like_count }]] = await db.execute('SELECT like_count FROM posts WHERE post_id = ?', [postId]);
     res.json({ success: true, like_count });
   } catch (err) {
@@ -125,11 +105,7 @@ exports.likePost = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // DELETE /api/posts/:postId/like
-// Body: { liker_type, liker_id }
-// ─────────────────────────────────────────────────────────────
 exports.unlikePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -146,11 +122,7 @@ exports.unlikePost = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // GET /api/posts/:postId/comments
-// Returns top-level comments + their replies
-// ─────────────────────────────────────────────────────────────
 exports.getComments = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -162,7 +134,6 @@ exports.getComments = async (req, res) => {
       [postId]
     );
 
-    // Enrich with commenter names
     const enriched = await Promise.all(
       comments.map(async (c) => {
         const commenter = await getPosterName(c.commenter_type, c.commenter_id);
@@ -170,7 +141,7 @@ exports.getComments = async (req, res) => {
       })
     );
 
-    // Nest replies under parent comments
+    // Nest replies
     const topLevel = [];
     const map = {};
     enriched.forEach((c) => { map[c.comment_id] = { ...c, replies: [] }; });
@@ -189,11 +160,7 @@ exports.getComments = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // POST /api/posts/:postId/comments
-// Body: { commenter_type, commenter_id, content, parent_comment_id? }
-// ─────────────────────────────────────────────────────────────
 exports.addComment = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -213,10 +180,7 @@ exports.addComment = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // DELETE /api/posts/:postId/comments/:commentId
-// ─────────────────────────────────────────────────────────────
 exports.deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
@@ -228,11 +192,7 @@ exports.deleteComment = async (req, res) => {
   }
 };
 
-
-// ─────────────────────────────────────────────────────────────
 // POST /api/posts/:postId/share
-// Body: { sharer_type, sharer_id }
-// ─────────────────────────────────────────────────────────────
 exports.sharePost = async (req, res) => {
   try {
     const { postId } = req.params;

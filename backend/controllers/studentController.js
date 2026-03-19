@@ -1,7 +1,7 @@
 const db = require("../database");
 const bcrypt = require("bcryptjs");
 
-// ── Friendly MySQL error messages ─────────────────────────────
+// Friendly MySQL error messages
 function friendlyError(err) {
     if (err.code === "ER_DUP_ENTRY") {
         const field = (err.sqlMessage || "").match(/for key '(.+?)'/)?.[1] || "";
@@ -15,220 +15,193 @@ function friendlyError(err) {
     return err.message || "An unexpected error occurred. Please try again.";
 }
 
-// ────────────────────────────────────────────────────────────────────
 // POST /api/students/register-full
-// Receives all 7 steps of data at once and writes everything in a
-// single transaction — the student is only stored if ALL data is valid.
-// ────────────────────────────────────────────────────────────────────
-exports.registerFull = (req, res) => {
+exports.registerFull = async (req, res) => {
     const { step1, step2, step3, step4, step5, step6, step7 } = req.body;
 
-    // Basic required-field validation
     if (!step1?.roll_number) return res.status(400).json({ message: "Roll number is required." });
     if (!step7?.username)    return res.status(400).json({ message: "Username is required." });
     if (!step7?.password)    return res.status(400).json({ message: "Password is required." });
 
-    // Hash the password before storing
     const passwordHash = bcrypt.hashSync(step7.password, 10);
 
-    // Use a raw connection from the pool for transaction support
-    db.getConnection((connErr, conn) => {
-        if (connErr) return res.status(500).json({ message: "Database connection failed." });
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
 
-        conn.beginTransaction((txErr) => {
-            if (txErr) { conn.release(); return res.status(500).json({ message: "Transaction error." }); }
+        // STEP 1: students table
+        const [studentResult] = await connection.query(
+            "INSERT INTO students (roll_number) VALUES (?)",
+            [step1.roll_number]
+        );
+        const studentId = studentResult.insertId;
 
-            // ── STEP 1: students table ──────────────────────────────
-            conn.query(
-                "INSERT INTO students (roll_number) VALUES (?)",
-                [step1.roll_number],
-                (err, result) => {
-                    if (err) return rollback(conn, res, err);
-                    const studentId = result.insertId;
+        // STEP 2: personal details
+        await connection.query(
+            `INSERT INTO student_personal_details
+             (student_id, first_name, last_name, full_name, date_of_birth, gender,
+              blood_group, nationality, religion, caste_category, aadhaar_number,
+              pan_number, passport_number, profile_photo_url)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            [studentId, step2?.first_name, step2?.last_name, step2?.full_name,
+             step2?.date_of_birth, step2?.gender, step2?.blood_group,
+             step2?.nationality, step2?.religion, step2?.caste_category,
+             step2?.aadhaar_number, step2?.pan_number, step2?.passport_number,
+             step2?.profile_photo_url]
+        );
 
-                    // ── STEP 2: personal details ────────────────────
-                    conn.query(
-                        `INSERT INTO student_personal_details
-                         (student_id, first_name, last_name, full_name, date_of_birth, gender,
-                          blood_group, nationality, religion, caste_category, aadhaar_number,
-                          pan_number, passport_number, profile_photo_url)
-                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-                        [studentId, step2?.first_name, step2?.last_name, step2?.full_name,
-                         step2?.date_of_birth, step2?.gender, step2?.blood_group,
-                         step2?.nationality, step2?.religion, step2?.caste_category,
-                         step2?.aadhaar_number, step2?.pan_number, step2?.passport_number,
-                         step2?.profile_photo_url],
-                        (err) => {
-                            if (err) return rollback(conn, res, err);
+        // STEP 3: contact details
+        await connection.query(
+            `INSERT INTO student_contact_details
+             (student_id, email, phone_number, alternate_phone_number)
+             VALUES (?,?,?,?)`,
+            [studentId, step3?.email, step3?.phone_number, step3?.alternate_phone_number]
+        );
 
-                            // ── STEP 3: contact details ─────────────
-                            conn.query(
-                                `INSERT INTO student_contact_details
-                                 (student_id, email, phone_number, alternate_phone_number)
-                                 VALUES (?,?,?,?)`,
-                                [studentId, step3?.email, step3?.phone_number, step3?.alternate_phone_number],
-                                (err) => {
-                                    if (err) return rollback(conn, res, err);
+        // STEP 4: address
+        await connection.query(
+            `INSERT INTO student_address_details
+             (student_id, address_line1, address_line2, city, state, pincode, country)
+             VALUES (?,?,?,?,?,?,?)`,
+            [studentId, step4?.address_line1, step4?.address_line2,
+             step4?.city, step4?.state, step4?.pincode, step4?.country]
+        );
 
-                                    // ── STEP 4: address ─────────────
-                                    conn.query(
-                                        `INSERT INTO student_address_details
-                                         (student_id, address_line1, address_line2, city, state, pincode, country)
-                                         VALUES (?,?,?,?,?,?,?)`,
-                                        [studentId, step4?.address_line1, step4?.address_line2,
-                                         step4?.city, step4?.state, step4?.pincode, step4?.country],
-                                        (err) => {
-                                            if (err) return rollback(conn, res, err);
+        // STEP 5: guardian
+        await connection.query(
+            `INSERT INTO student_guardian_details
+             (student_id, father_name, father_phone, father_occupation,
+              mother_name, mother_phone, mother_occupation,
+              guardian_name, guardian_phone, guardian_relation)
+             VALUES (?,?,?,?,?,?,?,?,?,?)`,
+            [studentId, step5?.father_name, step5?.father_phone,
+             step5?.father_occupation, step5?.mother_name,
+             step5?.mother_phone, step5?.mother_occupation,
+             step5?.guardian_name, step5?.guardian_phone,
+             step5?.guardian_relation]
+        );
 
-                                            // ── STEP 5: guardian ────
-                                            conn.query(
-                                                `INSERT INTO student_guardian_details
-                                                 (student_id, father_name, father_phone, father_occupation,
-                                                  mother_name, mother_phone, mother_occupation,
-                                                  guardian_name, guardian_phone, guardian_relation)
-                                                 VALUES (?,?,?,?,?,?,?,?,?,?)`,
-                                                [studentId, step5?.father_name, step5?.father_phone,
-                                                 step5?.father_occupation, step5?.mother_name,
-                                                 step5?.mother_phone, step5?.mother_occupation,
-                                                 step5?.guardian_name, step5?.guardian_phone,
-                                                 step5?.guardian_relation],
-                                                (err) => {
-                                                    if (err) return rollback(conn, res, err);
+        // STEP 6: academic
+        await connection.query(
+            `INSERT INTO student_academic_details
+             (student_id, batch_year, admission_date,
+              expected_graduation_date, current_year,
+              current_semester, section, academic_status)
+             VALUES (?,?,?,?,?,?,?,?)`,
+            [studentId, step6?.batch_year, step6?.admission_date,
+             step6?.expected_graduation_date, step6?.current_year,
+             step6?.current_semester, step6?.section,
+             step6?.academic_status]
+        );
 
-                                                    // ── STEP 6: academic ──
-                                                    conn.query(
-                                                        `INSERT INTO student_academic_details
-                                                         (student_id, batch_year, admission_date,
-                                                          expected_graduation_date, current_year,
-                                                          current_semester, section, academic_status)
-                                                         VALUES (?,?,?,?,?,?,?,?)`,
-                                                        [studentId, step6?.batch_year, step6?.admission_date,
-                                                         step6?.expected_graduation_date, step6?.current_year,
-                                                         step6?.current_semester, step6?.section,
-                                                         step6?.academic_status],
-                                                        (err) => {
-                                                            if (err) return rollback(conn, res, err);
+        // STEP 7: login
+        await connection.query(
+            `INSERT INTO student_login_accounts
+             (student_id, username, password_hash, account_status)
+             VALUES (?,?,?,?)`,
+            [studentId, step7.username, passwordHash, "ACTIVE"]
+        );
 
-                                                            // ── STEP 7: login ──
-                                                            conn.query(
-                                                                `INSERT INTO student_login_accounts
-                                                                 (student_id, username, password_hash, account_status)
-                                                                 VALUES (?,?,?,?)`,
-                                                                [studentId, step7.username, passwordHash, "ACTIVE"],
-                                                                (err) => {
-                                                                    if (err) return rollback(conn, res, err);
+        await connection.commit();
+        connection.release();
 
-                                                                    // ── ALL DONE: COMMIT ──
-                                                                    conn.commit((commitErr) => {
-                                                                        if (commitErr) return rollback(conn, res, commitErr);
-                                                                        conn.release();
-                                                                        res.json({
-                                                                            message: "Registration successful!",
-                                                                            student_id: studentId
-                                                                        });
-                                                                    });
-                                                                }
-                                                            );
-                                                        }
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                    );
-                }
-            );
-        });
-    });
+        res.json({ message: "Registration successful!", student_id: studentId });
+    } catch (err) {
+        await connection.rollback();
+        connection.release();
+        console.error("Registration transaction error:", err);
+        res.status(500).json({ message: friendlyError(err) });
+    }
 };
 
-// Helper: rollback and send error
-function rollback(conn, res, err) {
-    conn.rollback(() => {
-        conn.release();
-        res.status(500).json({ message: friendlyError(err) });
-    });
-}
-
-// ────────────────────────────────────────────────────────────────────
 // POST /api/students/login
-// Body: { username, password }
-// ────────────────────────────────────────────────────────────────────
-exports.loginStudent = (req, res) => {
+exports.loginStudent = async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password)
         return res.status(400).json({ message: "Username and password are required." });
 
-    db.query(
-        `SELECT sla.student_id, sla.password_hash, sla.account_status,
-                spd.first_name, spd.full_name, spd.profile_photo_url
-         FROM student_login_accounts sla
-         LEFT JOIN student_personal_details spd ON spd.student_id = sla.student_id
-         WHERE sla.username = ?`,
-        [username],
-        (err, rows) => {
-            if (err) return res.status(500).json({ message: "Database error." });
-            if (!rows.length) return res.status(401).json({ message: "Invalid username or password." });
+    try {
+        const [rows] = await db.query(
+            `SELECT sla.student_id, sla.password_hash, sla.account_status,
+                    spd.first_name, spd.full_name, spd.profile_photo_url
+             FROM student_login_accounts sla
+             LEFT JOIN student_personal_details spd ON spd.student_id = sla.student_id
+             WHERE sla.username = ?`,
+            [username]
+        );
 
-            const user = rows[0];
-            if (user.account_status !== "ACTIVE")
-                return res.status(403).json({ message: "Your account is inactive. Contact admin." });
+        if (!rows.length) return res.status(401).json({ message: "Invalid username or password." });
 
-            const match = bcrypt.compareSync(password, user.password_hash);
-            if (!match) return res.status(401).json({ message: "Invalid username or password." });
+        const user = rows[0];
+        if (user.account_status !== "ACTIVE")
+            return res.status(403).json({ message: "Your account is inactive. Contact admin." });
 
-            res.json({
-                message: "Login successful",
-                student_id: user.student_id,
-                name: user.full_name || user.first_name || username,
-                avatar: user.profile_photo_url,
-                type: "student"
-            });
-        }
-    );
+        const match = bcrypt.compareSync(password, user.password_hash);
+        if (!match) return res.status(401).json({ message: "Invalid username or password." });
+
+        res.json({
+            message: "Login successful",
+            student_id: user.student_id,
+            name: user.full_name || user.first_name || username,
+            avatar: user.profile_photo_url,
+            type: "student",
+            username: username
+        });
+    } catch (err) {
+        console.error("loginStudent error:", err);
+        res.status(500).json({ message: "Database error." });
+    }
 };
 
-// ────────────────────────────────────────────────────────────────────
 // POST /api/students/login-by-email
-// Verifies that an email belongs to a registered student (for OTP flow)
-// Body: { email }
-// ────────────────────────────────────────────────────────────────────
-exports.loginByEmail = (req, res) => {
+exports.loginByEmail = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required." });
 
-    db.query(
-        `SELECT sla.student_id, sla.account_status,
-                spd.first_name, spd.full_name, spd.profile_photo_url
-         FROM student_contact_details scd
-         JOIN student_login_accounts sla ON sla.student_id = scd.student_id
-         LEFT JOIN student_personal_details spd ON spd.student_id = scd.student_id
-         WHERE scd.email = ?`,
-        [email],
-        (err, rows) => {
-            if (err) return res.status(500).json({ message: "Database error." });
-            if (!rows.length)
-                return res.status(404).json({ message: "No account found with this email." });
+    try {
+        const [rows] = await db.query(
+            `SELECT sla.student_id, sla.account_status,
+                    spd.first_name, spd.full_name, spd.profile_photo_url
+             FROM student_contact_details scd
+             JOIN student_login_accounts sla ON sla.student_id = scd.student_id
+             LEFT JOIN student_personal_details spd ON spd.student_id = scd.student_id
+             WHERE scd.email = ?`,
+            [email]
+        );
 
-            const user = rows[0];
-            if (user.account_status !== "ACTIVE")
-                return res.status(403).json({ message: "Your account is inactive. Contact admin." });
+        if (!rows.length)
+            return res.status(404).json({ message: "No account found with this email." });
 
-            res.json({
-                message: "Email verified",
-                student_id: user.student_id,
-                name: user.full_name || user.first_name || "Student",
-                avatar: user.profile_photo_url,
-                type: "student"
-            });
-        }
-    );
+        const user = rows[0];
+        if (user.account_status !== "ACTIVE")
+            return res.status(403).json({ message: "Your account is inactive. Contact admin." });
+
+        res.json({
+            message: "Email verified",
+            student_id: user.student_id,
+            name: user.full_name || user.first_name || "Student",
+            avatar: user.profile_photo_url,
+            type: "student"
+        });
+    } catch (err) {
+        console.error("loginByEmail error:", err);
+        res.status(500).json({ message: "Database error." });
+    }
 };
 
-// Keep the old registerStep for backward compat (alumni/admin flows still use it)
+// Keep old registerStep for backward compatibility (if needed)
 exports.registerStep = (req, res) => {
     res.status(410).json({ message: "Step-by-step registration is deprecated. Use register-full." });
+};
+
+// NEW: Check if roll number exists
+exports.checkRollNumber = async (req, res) => {
+    const { rollNumber } = req.params;
+    try {
+        const [rows] = await db.query("SELECT student_id FROM students WHERE roll_number = ?", [rollNumber]);
+        res.json({ exists: rows.length > 0 });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Database error" });
+    }
 };

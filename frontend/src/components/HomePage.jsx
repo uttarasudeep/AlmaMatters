@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // ← import useNavigate
 import './HomePage.css';
 import logo from '../assets/almamatterslogowithname.jpeg';
 import { getFeed, createPost, likePost, unlikePost, getComments, addComment, sharePost } from './api';
@@ -72,7 +72,7 @@ function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare }) {
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.like_count);
+  const [likeCount, setLikeCount] = useState(post.like_count || 0);
 
   const toggleComments = async () => {
     if (!showComments && comments.length === 0) {
@@ -193,7 +193,6 @@ function CreatePostModal({ currentUser, onClose, onCreated }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
   const [mediaUrl, setMediaUrl] = useState('');
 
   const handleSubmit = async () => {
@@ -249,7 +248,7 @@ function CreatePostModal({ currentUser, onClose, onCreated }) {
 
 // ── HomePage ──────────────────────────────────────────────────
 export default function HomePage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ← define navigate
   const [profilePic, setProfilePic] = useState(() => sessionStorage.getItem('profilePic') || null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -257,10 +256,17 @@ export default function HomePage() {
   const [hasMore, setHasMore] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Read currently logged-in user from sessionStorage (set during login)
+  // Read currently logged-in user from sessionStorage
   const currentUser = (() => {
     try { return JSON.parse(sessionStorage.getItem('currentUser') || 'null'); } catch { return null; }
   })();
+
+  // Logout function
+  const handleLogout = () => {
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('profilePic');
+    navigate('/login');
+  };
 
   const handleProfileUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -314,7 +320,7 @@ export default function HomePage() {
   const handleShare = (postId) => {
     if (!currentUser) return;
     sharePost(postId, currentUser.type, currentUser.id).catch(console.error);
-    navigate(`/posts/${postId}`);
+    console.log('Shared post', postId);
   };
 
   const loadMore = () => {
@@ -336,6 +342,11 @@ export default function HomePage() {
               <div className="profile-placeholder">📷</div>
             )}
           </label>
+          {currentUser && (
+            <span style={{ color: '#2c3e50', fontWeight: 500, marginLeft: 8 }}>
+              {currentUser.username}
+            </span>
+          )}
           <button className="icon-btn" title="Requests Inbox">🔔</button>
         </div>
 
@@ -347,6 +358,7 @@ export default function HomePage() {
         <div className="nav-right">
           <button className="icon-btn" title="Search" onClick={() => navigate('/search')}>🔍</button>
           <button className="icon-btn" title="Messages" onClick={() => navigate('/messages')}>✉️</button>
+          <button className="icon-btn" title="Logout" onClick={handleLogout} style={{ fontSize: '1.2rem' }}>🚪</button>
         </div>
       </nav>
 

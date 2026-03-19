@@ -1,17 +1,16 @@
 const mysql = require('mysql2');
 
-// Use a pool so controllers can call db.getConnection() for transactions
-// AND db.query() for simple fire-and-forget queries.
-const db = mysql.createPool({
-  host:              'localhost',
-  user:              'root',
-  password:          'localhost@123',
-  database:          'almamatters',
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'root123',
+  database: 'almamatters',
   waitForConnections: true,
-  connectionLimit:    10,
+  connectionLimit: 10,
 });
 
-db.getConnection((err, conn) => {
+// Test the connection
+pool.getConnection((err, conn) => {
   if (err) {
     console.error('MySQL pool connection failed:', err.message);
   } else {
@@ -20,4 +19,5 @@ db.getConnection((err, conn) => {
   }
 });
 
-module.exports = db;
+// Export the promise pool
+module.exports = pool.promise();

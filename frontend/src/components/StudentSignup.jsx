@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./StudentSignup.css";
-import { registerFull } from "./api";
+import { registerFull, checkRollNumberExists } from "./api";
 
-/* ── Reusable field helpers ─────────────────────────────────── */
 function Field({ label, name, type = "text", placeholder, value, onChange, required }) {
     return (
         <div className="field-group">
@@ -34,7 +33,6 @@ function SelectField({ label, name, options, value, onChange, required }) {
     );
 }
 
-/* ── Step progress bar ──────────────────────────────────────── */
 const STEP_LABELS = ["Roll No.", "Personal", "Contact", "Address", "Guardian", "Academic", "Login"];
 
 function StepBar({ current }) {
@@ -50,14 +48,12 @@ function StepBar({ current }) {
     );
 }
 
-/* ── Main ───────────────────────────────────────────────────── */
 export default function StudentSignup() {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Each step has its own slice in state
     const [steps, setSteps] = useState({
         step1: {}, step2: {}, step3: {}, step4: {},
         step5: {}, step6: {}, step7: {}
@@ -71,7 +67,6 @@ export default function StudentSignup() {
         }));
     };
 
-    // Validation per step (only truly required fields)
     const validate = () => {
         const { step1, step2, step3, step7 } = steps;
         if (step === 1 && !step1.roll_number?.trim()) return "Roll number is required.";
@@ -85,15 +80,31 @@ export default function StudentSignup() {
         return null;
     };
 
-    // Navigate to next step (no DB call yet)
-    const goNext = () => {
+    const goNext = async () => {
         const err = validate();
         if (err) { setError(err); return; }
         setError("");
+
+        if (step === 1) {
+            setLoading(true);
+            try {
+                const exists = await checkRollNumberExists(steps.step1.roll_number);
+                if (exists) {
+                    setError("This roll number is already registered. Please use a different one.");
+                    setLoading(false);
+                    return;
+                }
+            } catch (e) {
+                setError("Could not verify roll number. Please try again.");
+                setLoading(false);
+                return;
+            } finally {
+                setLoading(false);
+            }
+        }
         setStep(s => s + 1);
     };
 
-    // Final step: submit EVERYTHING atomically to the backend
     const handleFinish = async () => {
         const err = validate();
         if (err) { setError(err); return; }
@@ -101,7 +112,7 @@ export default function StudentSignup() {
         setError("");
         try {
             await registerFull(steps);
-            setStep(8); // show success screen, then redirect
+            setStep(8);
             setTimeout(() => navigate("/login"), 2500);
         } catch (e) {
             const msg = e?.response?.data?.message || e?.message || "Registration failed. Please try again.";
@@ -125,8 +136,6 @@ export default function StudentSignup() {
                 {error && <div className="error-banner" role="alert">⚠️ {error}</div>}
 
                 <div className="step-body">
-
-                    {/* STEP 1 */}
                     {step === 1 && (
                         <section>
                             <h3>Basic Information</h3>
@@ -134,8 +143,6 @@ export default function StudentSignup() {
                                 placeholder="e.g. 21CS001" value={s1.roll_number} onChange={ch("step1")} />
                         </section>
                     )}
-
-                    {/* STEP 2 */}
                     {step === 2 && (
                         <section>
                             <h3>Personal Details</h3>
@@ -156,8 +163,6 @@ export default function StudentSignup() {
                             <Field label="Profile Photo URL" name="profile_photo_url" placeholder="https://…" value={s2.profile_photo_url} onChange={ch("step2")} />
                         </section>
                     )}
-
-                    {/* STEP 3 */}
                     {step === 3 && (
                         <section>
                             <h3>Contact Details</h3>
@@ -169,8 +174,6 @@ export default function StudentSignup() {
                                 placeholder="Optional" value={s3.alternate_phone_number} onChange={ch("step3")} />
                         </section>
                     )}
-
-                    {/* STEP 4 */}
                     {step === 4 && (
                         <section>
                             <h3>Address</h3>
@@ -182,8 +185,6 @@ export default function StudentSignup() {
                             <Field label="Country" name="country" placeholder="e.g. India" value={s4.country} onChange={ch("step4")} />
                         </section>
                     )}
-
-                    {/* STEP 5 */}
                     {step === 5 && (
                         <section>
                             <h3>Guardian Details</h3>
@@ -198,8 +199,6 @@ export default function StudentSignup() {
                             <Field label="Guardian's Relation" name="guardian_relation" placeholder="e.g. Uncle" value={s5.guardian_relation} onChange={ch("step5")} />
                         </section>
                     )}
-
-                    {/* STEP 6 */}
                     {step === 6 && (
                         <section>
                             <h3>Academic Details</h3>
@@ -214,8 +213,6 @@ export default function StudentSignup() {
                                 value={s6.academic_status} onChange={ch("step6")} />
                         </section>
                     )}
-
-                    {/* STEP 7 — Login credentials */}
                     {step === 7 && (
                         <section>
                             <h3>Create Login</h3>
@@ -224,8 +221,6 @@ export default function StudentSignup() {
                             <Field label="Password" name="password" type="password" required placeholder="Min. 8 characters" value={s7.password} onChange={ch("step7")} />
                         </section>
                     )}
-
-                    {/* STEP 8 — Success */}
                     {step === 8 && (
                         <section className="success-section">
                             <div className="success-icon">🎉</div>
@@ -235,7 +230,6 @@ export default function StudentSignup() {
                     )}
                 </div>
 
-                {/* Navigation */}
                 {step <= 7 && (
                     <div className="nav-buttons">
                         {step > 1 && (
@@ -244,7 +238,9 @@ export default function StudentSignup() {
                             </button>
                         )}
                         {step < 7 ? (
-                            <button className="btn-next" onClick={goNext}>Next →</button>
+                            <button className="btn-next" onClick={goNext} disabled={loading}>
+                                {loading ? "Checking…" : "Next →"}
+                            </button>
                         ) : (
                             <button className="btn-next" onClick={handleFinish} disabled={loading}>
                                 {loading ? "Registering…" : "Finish ✓"}

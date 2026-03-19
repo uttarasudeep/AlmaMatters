@@ -152,5 +152,12 @@ export const getApprovedSessions = () =>
 
 export const updateSessionStatus = (sessionId, status) =>
   API.put(`/sessions/${sessionId}/status`, { status }).then(res => res.data);
+// Check if roll number already exists
+export const checkRollNumberExists = (rollNumber) =>
+  API.get(`/students/check-roll/${rollNumber}`).then(res => res.data.exists);
 
-export default API;
+// Fetch user profile by username
+export const getUserByUsername = (username) =>
+  API.get(`/users/${username}`).then(res => res.data);
+
+export default API;
