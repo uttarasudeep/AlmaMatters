@@ -74,9 +74,34 @@ export default function AlumniSignup() {
   };
 
   const validate = () => {
-    const { step1, step2, step7 } = steps;
-    if (step === 1 && !step1.roll_number?.trim()) return "Roll number is required.";
-    if (step === 2 && !step2.linkedin_url?.trim()) return "LinkedIn URL is required.";
+    const { step1, step2, step3, step4, step5, step6, step7 } = steps;
+    if (step === 1) {
+      if (!step1.roll_number?.trim()) return "Roll number is required.";
+      if (!step1.graduation_year) return "Graduation year is required.";
+    }
+    if (step === 2) {
+      if (!step2.linkedin_url?.trim() || !step2.current_city?.trim()) return "All professional presence fields are required.";
+    }
+    if (step === 3) {
+      if (!step3.company_name?.trim() || !step3.job_title?.trim() || !step3.industry?.trim() || !step3.years_of_experience) {
+        return "All employment fields are required.";
+      }
+    }
+    if (step === 4) {
+      if (!step4.university_name?.trim() || !step4.degree?.trim() || !step4.field_of_study?.trim() || !step4.country?.trim() || !step4.start_year || !step4.end_year) {
+         return "All higher education fields are required.";
+      }
+    }
+    if (step === 5) {
+      if (!step5.department?.trim() || !step5.program?.trim() || !step5.course?.trim() || !step5.batch_year || !step5.graduation_year || !step5.cgpa || !step5.class_obtained?.trim()) {
+         return "All academic background fields are required.";
+      }
+    }
+    if (step === 6) {
+      if (!step6.address_line1?.trim() || !step6.address_line2?.trim() || !step6.city?.trim() || !step6.state?.trim() || !step6.pincode?.trim() || !step6.country?.trim()) {
+         return "All address fields are required.";
+      }
+    }
     if (step === 7) {
       if (!step7.username?.trim()) return "Username is required.";
       if (!step7.password?.trim()) return "Password is required.";
@@ -186,10 +211,10 @@ export default function AlumniSignup() {
           {step === 3 && (
             <section>
               <h3>Current Employment</h3>
-              <Field label="Company Name" name="company_name" value={s3.company_name} onChange={ch("step3")} />
-              <Field label="Job Title" name="job_title" value={s3.job_title} onChange={ch("step3")} />
-              <Field label="Industry" name="industry" value={s3.industry} onChange={ch("step3")} />
-              <Field label="Years of Experience" name="years_of_experience" type="number" step="0.1"
+              <Field label="Company Name" name="company_name" required value={s3.company_name} onChange={ch("step3")} />
+              <Field label="Job Title" name="job_title" required value={s3.job_title} onChange={ch("step3")} />
+              <Field label="Industry" name="industry" required value={s3.industry} onChange={ch("step3")} />
+              <Field label="Years of Experience" name="years_of_experience" type="number" step="0.1" required
                 value={s3.years_of_experience} onChange={ch("step3")} />
             </section>
           )}
@@ -198,12 +223,12 @@ export default function AlumniSignup() {
           {step === 4 && (
             <section>
               <h3>Higher Education (if any)</h3>
-              <Field label="University Name" name="university_name" value={s4.university_name} onChange={ch("step4")} />
-              <Field label="Degree" name="degree" value={s4.degree} onChange={ch("step4")} />
-              <Field label="Field of Study" name="field_of_study" value={s4.field_of_study} onChange={ch("step4")} />
-              <Field label="Country" name="country" value={s4.country} onChange={ch("step4")} />
-              <Field label="Start Year" name="start_year" placeholder="YYYY" value={s4.start_year} onChange={ch("step4")} />
-              <Field label="End Year" name="end_year" placeholder="YYYY" value={s4.end_year} onChange={ch("step4")} />
+              <Field label="University Name" name="university_name" required value={s4.university_name} onChange={ch("step4")} />
+              <Field label="Degree" name="degree" required value={s4.degree} onChange={ch("step4")} />
+              <Field label="Field of Study" name="field_of_study" required value={s4.field_of_study} onChange={ch("step4")} />
+              <Field label="Country" name="country" required value={s4.country} onChange={ch("step4")} />
+              <Field label="Start Year" name="start_year" placeholder="YYYY" required value={s4.start_year} onChange={ch("step4")} />
+              <Field label="End Year" name="end_year" placeholder="YYYY" required value={s4.end_year} onChange={ch("step4")} />
             </section>
           )}
 
@@ -211,13 +236,13 @@ export default function AlumniSignup() {
           {step === 5 && (
             <section>
               <h3>Academic Background</h3>
-              <Field label="Department" name="department" value={s5.department} onChange={ch("step5")} />
-              <Field label="Program" name="program" value={s5.program} onChange={ch("step5")} />
-              <Field label="Course" name="course" value={s5.course} onChange={ch("step5")} />
-              <Field label="Batch Year" name="batch_year" placeholder="YYYY" value={s5.batch_year} onChange={ch("step5")} />
-              <Field label="Graduation Year" name="graduation_year" placeholder="YYYY" value={s5.graduation_year} onChange={ch("step5")} />
-              <Field label="CGPA" name="cgpa" type="number" step="0.01" value={s5.cgpa} onChange={ch("step5")} />
-              <Field label="Class Obtained" name="class_obtained" placeholder="e.g. First Class" value={s5.class_obtained} onChange={ch("step5")} />
+              <Field label="Department" name="department" required value={s5.department} onChange={ch("step5")} />
+              <Field label="Program" name="program" required value={s5.program} onChange={ch("step5")} />
+              <Field label="Course" name="course" required value={s5.course} onChange={ch("step5")} />
+              <Field label="Batch Year" name="batch_year" placeholder="YYYY" required value={s5.batch_year} onChange={ch("step5")} />
+              <Field label="Graduation Year" name="graduation_year" placeholder="YYYY" required value={s5.graduation_year} onChange={ch("step5")} />
+              <Field label="CGPA" name="cgpa" type="number" step="0.01" required value={s5.cgpa} onChange={ch("step5")} />
+              <Field label="Class Obtained" name="class_obtained" placeholder="e.g. First Class" required value={s5.class_obtained} onChange={ch("step5")} />
             </section>
           )}
 
@@ -225,12 +250,12 @@ export default function AlumniSignup() {
           {step === 6 && (
             <section>
               <h3>Current Address</h3>
-              <Field label="Address Line 1" name="address_line1" value={s6.address_line1} onChange={ch("step6")} />
-              <Field label="Address Line 2" name="address_line2" value={s6.address_line2} onChange={ch("step6")} />
-              <Field label="City" name="city" value={s6.city} onChange={ch("step6")} />
-              <Field label="State" name="state" value={s6.state} onChange={ch("step6")} />
-              <Field label="Pincode" name="pincode" value={s6.pincode} onChange={ch("step6")} />
-              <Field label="Country" name="country" value={s6.country} onChange={ch("step6")} />
+              <Field label="Address Line 1" name="address_line1" required value={s6.address_line1} onChange={ch("step6")} />
+              <Field label="Address Line 2" name="address_line2" required value={s6.address_line2} onChange={ch("step6")} />
+              <Field label="City" name="city" required value={s6.city} onChange={ch("step6")} />
+              <Field label="State" name="state" required value={s6.state} onChange={ch("step6")} />
+              <Field label="Pincode" name="pincode" required value={s6.pincode} onChange={ch("step6")} />
+              <Field label="Country" name="country" required value={s6.country} onChange={ch("step6")} />
             </section>
           )}
 

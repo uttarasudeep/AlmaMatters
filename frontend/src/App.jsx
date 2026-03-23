@@ -5,6 +5,8 @@ import LandingPage from './components/landerpage';
 import Signup from './components/Signup';
 import Login from './components/loginpage';
 import HomePage from './components/HomePage';
+import SearchUsers from './components/SearchUsers';
+import UserProfile from './components/UserProfile';
 import PlaceholderPage from './components/PlaceholderPage';
 import Sessions from './components/Sessions';
 
@@ -36,7 +38,8 @@ function App() {
           <Route path="/:username" element={<UserLayout />}>
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<HomePage />} />
-            <Route path="search" element={<PlaceholderPage title="Search" />} />
+            <Route path="search" element={<SearchUsers />} />
+            <Route path="profile/:userType/:userId" element={<UserProfile />} />
             <Route path="messages" element={<PlaceholderPage title="Message Inbox" />} />
             <Route path="sessions" element={<Sessions />} />
             <Route path="progress" element={<PlaceholderPage title="Progress" />} />

@@ -100,8 +100,8 @@ POSTS & FEED APIs
 */
 
 /** Fetch paginated feed */
-export const getFeed = (page = 1, limit = 20) =>
-  API.get(`/posts/feed?page=${page}&limit=${limit}`).then(res => res.data);
+export const getFeed = (page = 1, limit = 20, viewerType = '', viewerId = '') =>
+  API.get(`/posts/feed?page=${page}&limit=${limit}&viewer_type=${encodeURIComponent(viewerType)}&viewer_id=${encodeURIComponent(viewerId)}`).then(res => res.data);
 
 /** Create a new post */
 export const createPost = (data) =>
@@ -147,11 +147,33 @@ export const requestSession = (data) =>
 export const getPendingSessions = () =>
   API.get("/sessions/pending").then(res => res.data);
 
+export const getAllSessions = () =>
+  API.get("/sessions/all").then(res => res.data);
+
 export const getApprovedSessions = () =>
   API.get("/sessions").then(res => res.data);
 
-export const updateSessionStatus = (sessionId, status) =>
-  API.put(`/sessions/${sessionId}/status`, { status }).then(res => res.data);
+export const getMySessionRequests = (requesterType, requesterId) =>
+  API.get(`/sessions/my?requester_type=${encodeURIComponent(requesterType)}&requester_id=${encodeURIComponent(requesterId)}`).then(res => res.data);
+
+export const updateSessionStatus = (sessionId, status, adminId) =>
+  API.put(`/sessions/${sessionId}/status`, { status, admin_id: adminId }).then(res => res.data);
+
+export const applySession = (sessionId, data) =>
+  API.post(`/sessions/${sessionId}/apply`, data).then(res => res.data);
+
+export const getSessionApplicants = (sessionId, requesterType, requesterId) =>
+  API.get(`/sessions/${sessionId}/applicants?requester_type=${encodeURIComponent(requesterType)}&requester_id=${encodeURIComponent(requesterId)}`).then(res => res.data);
+
+export const getNotifications = (userType, userId) =>
+  API.get(`/sessions/notifications/${userType}/${userId}`).then(res => res.data);
+
+export const markNotificationRead = (notificationId) =>
+  API.patch(`/sessions/notifications/${notificationId}/read`).then(res => res.data);
+
+export const markAllNotificationsRead = (userType, userId) =>
+  API.patch('/sessions/notifications/read-all', { user_type: userType, user_id: userId }).then(res => res.data);
+
 // Check if roll number already exists
 export const checkRollNumberExists = (rollNumber) =>
   API.get(`/students/check-roll/${rollNumber}`).then(res => res.data.exists);
@@ -159,5 +181,40 @@ export const checkRollNumberExists = (rollNumber) =>
 // Fetch user profile by username
 export const getUserByUsername = (username) =>
   API.get(`/users/${username}`).then(res => res.data);
+
+/*
+=====================================
+NETWORK & FOLLOW APIs
+=====================================
+*/
+export const searchUsers = (q) =>
+  API.get(`/network/search?q=${encodeURIComponent(q)}`).then(res => res.data);
+
+export const followUser = (data) =>
+  API.post("/network/follow", data).then(res => res.data);
+
+export const acceptFollow = (data) =>
+  API.put("/network/follow/accept", data).then(res => res.data);
+
+export const rejectFollow = (data) =>
+  API.put("/network/follow/reject", data).then(res => res.data);
+
+export const unfollowUser = (followerType, followerId, followingType, followingId) =>
+  API.delete(`/network/follow?follower_type=${encodeURIComponent(followerType)}&follower_id=${encodeURIComponent(followerId)}&following_type=${encodeURIComponent(followingType)}&following_id=${encodeURIComponent(followingId)}`).then(res => res.data);
+
+export const getFollowStatus = (followerType, followerId, followingType, followingId) =>
+  API.get(`/network/follow/status?follower_type=${encodeURIComponent(followerType)}&follower_id=${encodeURIComponent(followerId)}&following_type=${encodeURIComponent(followingType)}&following_id=${encodeURIComponent(followingId)}`).then(res => res.data);
+
+export const getUserProfileInfo = (userType, userId) =>
+  API.get(`/network/${userType}/${userId}/profile`).then(res => res.data);
+
+export const getFollowers = (userType, userId) =>
+  API.get(`/network/${userType}/${userId}/followers`).then(res => res.data);
+
+export const getFollowing = (userType, userId) =>
+  API.get(`/network/${userType}/${userId}/following`).then(res => res.data);
+
+export const getPendingRequests = (userType, userId) =>
+  API.get(`/network/${userType}/${userId}/requests`).then(res => res.data);
 
 export default API;

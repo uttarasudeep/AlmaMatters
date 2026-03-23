@@ -68,10 +68,40 @@ export default function StudentSignup() {
     };
 
     const validate = () => {
-        const { step1, step2, step3, step7 } = steps;
+        const { step1, step2, step3, step4, step5, step6, step7 } = steps;
         if (step === 1 && !step1.roll_number?.trim()) return "Roll number is required.";
-        if (step === 2 && !step2.first_name?.trim())  return "First name is required.";
-        if (step === 3 && !step3.email?.trim())        return "Email address is required.";
+        if (step === 2) {
+            if (!step2.first_name?.trim())  return "First name is required.";
+            if (!step2.last_name?.trim())   return "Last name is required.";
+            if (!step2.full_name?.trim())   return "Full name is required.";
+            if (!step2.date_of_birth)       return "Date of birth is required.";
+            if (!step2.gender)              return "Gender is required.";
+            if (!step2.blood_group?.trim()) return "Blood group is required.";
+            if (!step2.nationality?.trim()) return "Nationality is required.";
+            if (!step2.religion?.trim())    return "Religion is required.";
+            if (!step2.caste_category?.trim()) return "Caste category is required.";
+            if (!step2.profile_photo_url?.trim()) return "Profile photo URL is required.";
+        }
+        if (step === 3) {
+            if (!step3.email?.trim())        return "Email address is required.";
+            if (!step3.phone_number?.trim()) return "Phone number is required.";
+            if (!step3.alternate_phone_number?.trim()) return "Alternate phone number is required.";
+        }
+        if (step === 4) {
+            if (!step4.address_line1?.trim() || !step4.address_line2?.trim() || !step4.city?.trim() || !step4.state?.trim() || !step4.pincode?.trim() || !step4.country?.trim())
+                return "All address fields are required.";
+        }
+        if (step === 5) {
+            if (!step5.father_name?.trim() || !step5.father_phone?.trim() || !step5.father_occupation?.trim() ||
+                !step5.mother_name?.trim() || !step5.mother_phone?.trim() || !step5.mother_occupation?.trim() ||
+                !step5.guardian_name?.trim() || !step5.guardian_phone?.trim() || !step5.guardian_relation?.trim())
+                return "All guardian fields are required.";
+        }
+        if (step === 6) {
+            if (!step6.batch_year?.trim() || !step6.admission_date || !step6.expected_graduation_date ||
+                !step6.current_year?.trim() || !step6.current_semester?.trim() || !step6.section?.trim() || !step6.academic_status)
+                return "All academic details are required.";
+        }
         if (step === 7) {
             if (!step7.username?.trim())  return "Username is required.";
             if (!step7.password?.trim())  return "Password is required.";
@@ -147,20 +177,20 @@ export default function StudentSignup() {
                         <section>
                             <h3>Personal Details</h3>
                             <Field label="First Name" name="first_name" required value={s2.first_name} onChange={ch("step2")} />
-                            <Field label="Last Name" name="last_name" value={s2.last_name} onChange={ch("step2")} />
-                            <Field label="Full Name" name="full_name" value={s2.full_name} onChange={ch("step2")} />
-                            <Field label="Date of Birth" name="date_of_birth" type="date" value={s2.date_of_birth} onChange={ch("step2")} />
+                            <Field label="Last Name" name="last_name" required value={s2.last_name} onChange={ch("step2")} />
+                            <Field label="Full Name" name="full_name" required value={s2.full_name} onChange={ch("step2")} />
+                            <Field label="Date of Birth" name="date_of_birth" type="date" required value={s2.date_of_birth} onChange={ch("step2")} />
                             <SelectField label="Gender" name="gender" required
                                 options={["Male", "Female", "Other", "Prefer not to say"]}
                                 value={s2.gender} onChange={ch("step2")} />
-                            <Field label="Blood Group" name="blood_group" placeholder="e.g. O+" value={s2.blood_group} onChange={ch("step2")} />
-                            <Field label="Nationality" name="nationality" placeholder="e.g. Indian" value={s2.nationality} onChange={ch("step2")} />
-                            <Field label="Religion" name="religion" value={s2.religion} onChange={ch("step2")} />
-                            <Field label="Caste Category" name="caste_category" placeholder="e.g. General, OBC, SC, ST" value={s2.caste_category} onChange={ch("step2")} />
-                            <Field label="Aadhaar Number" name="aadhaar_number" placeholder="12-digit Aadhaar" value={s2.aadhaar_number} onChange={ch("step2")} />
-                            <Field label="PAN Number" name="pan_number" placeholder="e.g. ABCDE1234F" value={s2.pan_number} onChange={ch("step2")} />
+                            <Field label="Blood Group" name="blood_group" placeholder="e.g. O+" required value={s2.blood_group} onChange={ch("step2")} />
+                            <Field label="Nationality" name="nationality" placeholder="e.g. Indian" required value={s2.nationality} onChange={ch("step2")} />
+                            <Field label="Religion" name="religion" required value={s2.religion} onChange={ch("step2")} />
+                            <Field label="Caste Category" name="caste_category" placeholder="e.g. General, OBC, SC, ST" required value={s2.caste_category} onChange={ch("step2")} />
+                            <Field label="Aadhaar Number" name="aadhaar_number" placeholder="12-digit Aadhaar (Optional)" value={s2.aadhaar_number} onChange={ch("step2")} />
+                            <Field label="PAN Number" name="pan_number" placeholder="e.g. ABCDE1234F (Optional)" value={s2.pan_number} onChange={ch("step2")} />
                             <Field label="Passport Number" name="passport_number" placeholder="Optional" value={s2.passport_number} onChange={ch("step2")} />
-                            <Field label="Profile Photo URL" name="profile_photo_url" placeholder="https://…" value={s2.profile_photo_url} onChange={ch("step2")} />
+                            <Field label="Profile Photo URL" name="profile_photo_url" placeholder="https://…" required value={s2.profile_photo_url} onChange={ch("step2")} />
                         </section>
                     )}
                     {step === 3 && (
@@ -168,47 +198,47 @@ export default function StudentSignup() {
                             <h3>Contact Details</h3>
                             <Field label="Email Address" name="email" type="email" required
                                 placeholder="you@example.com" value={s3.email} onChange={ch("step3")} />
-                            <Field label="Phone Number" name="phone_number" type="tel"
+                            <Field label="Phone Number" name="phone_number" type="tel" required
                                 placeholder="+91 XXXXX XXXXX" value={s3.phone_number} onChange={ch("step3")} />
-                            <Field label="Alternate Phone" name="alternate_phone_number" type="tel"
-                                placeholder="Optional" value={s3.alternate_phone_number} onChange={ch("step3")} />
+                            <Field label="Alternate Phone" name="alternate_phone_number" type="tel" required
+                                placeholder="Required" value={s3.alternate_phone_number} onChange={ch("step3")} />
                         </section>
                     )}
                     {step === 4 && (
                         <section>
                             <h3>Address</h3>
-                            <Field label="Address Line 1" name="address_line1" placeholder="Street / Door No." value={s4.address_line1} onChange={ch("step4")} />
-                            <Field label="Address Line 2" name="address_line2" placeholder="Area (optional)" value={s4.address_line2} onChange={ch("step4")} />
-                            <Field label="City" name="city" value={s4.city} onChange={ch("step4")} />
-                            <Field label="State" name="state" value={s4.state} onChange={ch("step4")} />
-                            <Field label="Pincode" name="pincode" placeholder="6-digit" value={s4.pincode} onChange={ch("step4")} />
-                            <Field label="Country" name="country" placeholder="e.g. India" value={s4.country} onChange={ch("step4")} />
+                            <Field label="Address Line 1" name="address_line1" required placeholder="Street / Door No." value={s4.address_line1} onChange={ch("step4")} />
+                            <Field label="Address Line 2" name="address_line2" required placeholder="Area" value={s4.address_line2} onChange={ch("step4")} />
+                            <Field label="City" name="city" required value={s4.city} onChange={ch("step4")} />
+                            <Field label="State" name="state" required value={s4.state} onChange={ch("step4")} />
+                            <Field label="Pincode" name="pincode" required placeholder="6-digit" value={s4.pincode} onChange={ch("step4")} />
+                            <Field label="Country" name="country" required placeholder="e.g. India" value={s4.country} onChange={ch("step4")} />
                         </section>
                     )}
                     {step === 5 && (
                         <section>
                             <h3>Guardian Details</h3>
-                            <Field label="Father's Name" name="father_name" value={s5.father_name} onChange={ch("step5")} />
-                            <Field label="Father's Phone" name="father_phone" type="tel" value={s5.father_phone} onChange={ch("step5")} />
-                            <Field label="Father's Occupation" name="father_occupation" value={s5.father_occupation} onChange={ch("step5")} />
-                            <Field label="Mother's Name" name="mother_name" value={s5.mother_name} onChange={ch("step5")} />
-                            <Field label="Mother's Phone" name="mother_phone" type="tel" value={s5.mother_phone} onChange={ch("step5")} />
-                            <Field label="Mother's Occupation" name="mother_occupation" value={s5.mother_occupation} onChange={ch("step5")} />
-                            <Field label="Guardian's Name" name="guardian_name" placeholder="If different" value={s5.guardian_name} onChange={ch("step5")} />
-                            <Field label="Guardian's Phone" name="guardian_phone" type="tel" value={s5.guardian_phone} onChange={ch("step5")} />
-                            <Field label="Guardian's Relation" name="guardian_relation" placeholder="e.g. Uncle" value={s5.guardian_relation} onChange={ch("step5")} />
+                            <Field label="Father's Name" name="father_name" required value={s5.father_name} onChange={ch("step5")} />
+                            <Field label="Father's Phone" name="father_phone" type="tel" required value={s5.father_phone} onChange={ch("step5")} />
+                            <Field label="Father's Occupation" name="father_occupation" required value={s5.father_occupation} onChange={ch("step5")} />
+                            <Field label="Mother's Name" name="mother_name" required value={s5.mother_name} onChange={ch("step5")} />
+                            <Field label="Mother's Phone" name="mother_phone" type="tel" required value={s5.mother_phone} onChange={ch("step5")} />
+                            <Field label="Mother's Occupation" name="mother_occupation" required value={s5.mother_occupation} onChange={ch("step5")} />
+                            <Field label="Guardian's Name" name="guardian_name" required placeholder="Required" value={s5.guardian_name} onChange={ch("step5")} />
+                            <Field label="Guardian's Phone" name="guardian_phone" type="tel" required value={s5.guardian_phone} onChange={ch("step5")} />
+                            <Field label="Guardian's Relation" name="guardian_relation" required placeholder="e.g. Uncle" value={s5.guardian_relation} onChange={ch("step5")} />
                         </section>
                     )}
                     {step === 6 && (
                         <section>
                             <h3>Academic Details</h3>
-                            <Field label="Batch Year" name="batch_year" placeholder="e.g. 2021" value={s6.batch_year} onChange={ch("step6")} />
-                            <Field label="Admission Date" name="admission_date" type="date" value={s6.admission_date} onChange={ch("step6")} />
-                            <Field label="Expected Graduation Date" name="expected_graduation_date" type="date" value={s6.expected_graduation_date} onChange={ch("step6")} />
-                            <Field label="Current Year" name="current_year" placeholder="e.g. 3" value={s6.current_year} onChange={ch("step6")} />
-                            <Field label="Current Semester" name="current_semester" placeholder="e.g. 5" value={s6.current_semester} onChange={ch("step6")} />
-                            <Field label="Section" name="section" placeholder="e.g. A" value={s6.section} onChange={ch("step6")} />
-                            <SelectField label="Academic Status" name="academic_status"
+                            <Field label="Batch Year" name="batch_year" required placeholder="e.g. 2021" value={s6.batch_year} onChange={ch("step6")} />
+                            <Field label="Admission Date" name="admission_date" type="date" required value={s6.admission_date} onChange={ch("step6")} />
+                            <Field label="Expected Graduation Date" name="expected_graduation_date" required type="date" value={s6.expected_graduation_date} onChange={ch("step6")} />
+                            <Field label="Current Year" name="current_year" required placeholder="e.g. 3" value={s6.current_year} onChange={ch("step6")} />
+                            <Field label="Current Semester" name="current_semester" required placeholder="e.g. 5" value={s6.current_semester} onChange={ch("step6")} />
+                            <Field label="Section" name="section" required placeholder="e.g. A" value={s6.section} onChange={ch("step6")} />
+                            <SelectField label="Academic Status" name="academic_status" required
                                 options={["Active", "Detained", "Passed Out", "Lateral Entry"]}
                                 value={s6.academic_status} onChange={ch("step6")} />
                         </section>

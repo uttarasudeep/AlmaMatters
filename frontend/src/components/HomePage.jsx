@@ -285,7 +285,7 @@ export default function HomePage() {
   const loadPosts = async (pageNum = 1, replace = false) => {
     setLoading(true);
     try {
-      const data = await getFeed(pageNum, 20);
+      const data = await getFeed(pageNum, 20, currentUser?.type, currentUser?.id);
       const incoming = data.posts || [];
       setPosts(prev => replace ? incoming : [...prev, ...incoming]);
       setHasMore(incoming.length === 20);
@@ -429,6 +429,33 @@ export default function HomePage() {
           onClose={() => setShowCreateModal(false)}
           onCreated={() => loadPosts(1, true)}
         />
+      )}
+
+      {/* Alumni Transition Modal */}
+      {currentUser?.requires_alumni_transition && (
+        <div className="modal-overlay" style={{ zIndex: 9999, background: 'rgba(0,0,0,0.8)' }}>
+          <div className="modal-box" style={{ textAlign: 'center', padding: '40px 30px' }}>
+            <h2 style={{ marginBottom: '15px', color: '#e74c3c' }}>Congratulations, Graduate! 🎓</h2>
+            <p style={{ marginBottom: '25px', color: '#34495e', lineHeight: '1.6' }}>
+              Our records indicate that you have graduated! You can no longer access the student portal. 
+              Please transition your account to the Alumni Portal to stay connected.
+            </p>
+            <button 
+              onClick={() => {
+                sessionStorage.removeItem('currentUser');
+                sessionStorage.removeItem('profilePic');
+                navigate('/signup/alumni');
+              }}
+              style={{
+                background: '#2ecc71', color: '#fff', border: 'none', padding: '15px 30px',
+                borderRadius: '30px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer',
+                boxShadow: '0 4px 6px rgba(46, 204, 113, 0.3)'
+              }}
+            >
+              Update to Alumni Profile
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
