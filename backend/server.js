@@ -42,6 +42,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/network", followRoutes);
 app.use("/api/jobs", require('./routes/jobRoutes'));
 app.use("/api/upload", uploadRoutes);
+app.use("/api/messages", require('./routes/messageRoutes'));
 
 
 

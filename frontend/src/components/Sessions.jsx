@@ -34,51 +34,86 @@ function RequestSessionModal({ currentUser, onClose, onCreated }) {
       onCreated();
       onClose();
     } catch (e) {
-      setError("Failed to submit request.");
+      setError("Failed to submit request. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={e => e.stopPropagation()}>
-        <h3>Request to Organize a Session</h3>
-        <input
-          type="text"
-          placeholder="Session Title"
-          className="comment-input"
-          style={{marginBottom: '10px'}}
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-        />
-        <textarea
-          className="post-textarea"
-          placeholder="What will the session be about?"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          rows={4}
-        />
-        <div style={{marginTop: '10px'}}>
-           <label style={{display:'block', marginBottom:'5px', fontSize:'0.9rem', color:'#64748B'}}>Proposed Date & Time</label>
-           <input
-             type="datetime-local"
-             className="comment-input"
-             value={scheduledAt}
-             onChange={e => setScheduledAt(e.target.value)}
-           />
+    <div className="linkedin-modal-overlay" onClick={onClose}>
+      <div className="session-modal-box" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="linkedin-modal-header">
+          <h2>Request a Session</h2>
+          <button className="linkedin-modal-close" onClick={onClose} aria-label="Close">✕</button>
         </div>
-        {error && <p className="error-msg">{error}</p>}
-        <div className="modal-actions" style={{marginTop: '15px'}}>
-          <button className="modal-cancel-btn" onClick={onClose}>Cancel</button>
-          <button className="modal-post-btn" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Submitting..." : "Submit Request"}
-          </button>
+
+        {/* Body */}
+        <div className="session-modal-body">
+          <div className="session-form-group">
+            <label className="session-form-label">Session Title <span className="session-required">*</span></label>
+            <input
+              type="text"
+              className="session-form-input"
+              placeholder="e.g. Interview Prep for SDE Roles"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              autoFocus
+            />
+          </div>
+
+          <div className="session-form-group">
+            <label className="session-form-label">Description <span className="session-required">*</span></label>
+            <textarea
+              className="session-form-textarea"
+              placeholder="What will this session cover? Who is it for? What should attendees expect?"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="session-form-group">
+            <label className="session-form-label">Proposed Date &amp; Time <span className="session-required">*</span></label>
+            <input
+              type="datetime-local"
+              className="session-form-input"
+              value={scheduledAt}
+              onChange={e => setScheduledAt(e.target.value)}
+            />
+          </div>
+
+          {error && (
+            <div className="session-error-banner">
+              ⚠️ {error}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="session-modal-footer">
+          <p className="session-modal-note">
+            📋 Your request will be reviewed by an admin before going live.
+          </p>
+          <div className="session-modal-actions">
+            <button className="session-cancel-btn" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+            <button className="session-submit-btn" onClick={handleSubmit} disabled={loading}>
+              {loading ? (
+                <><span className="session-btn-spinner" /> Submitting...</>
+              ) : (
+                "Submit Request"
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 export default function Sessions() {
   const navigate = useNavigate();

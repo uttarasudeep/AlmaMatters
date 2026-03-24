@@ -250,4 +250,33 @@ export const getJobApplications = (jobId) =>
 export const updateApplicationStatus = (applicationId, status) =>
   API.put(`/jobs/applications/${applicationId}/status`, { status }).then(res => res.data);
 
+
+/*
+=====================================
+MESSAGING APIs
+=====================================
+*/
+
+export const getConversations = (userType, userId) =>
+  API.get(`/messages/conversations/${userType}/${userId}`).then(res => res.data);
+
+export const getOrCreateConversation = (u1Type, u1Id, u2Type, u2Id) =>
+  API.post('/messages/conversations', {
+    user1_type: u1Type, user1_id: u1Id, user2_type: u2Type, user2_id: u2Id
+  }).then(res => res.data);
+
+export const getMessages = (conversationId, page = 1) =>
+  API.get(`/messages/conversations/${conversationId}/messages?page=${page}`).then(res => res.data);
+
+export const sendMessage = (conversationId, senderType, senderId, content) =>
+  API.post(`/messages/conversations/${conversationId}/send`, {
+    sender_type: senderType, sender_id: senderId, content
+  }).then(res => res.data);
+
+export const markConversationRead = (conversationId, readerType, readerId) =>
+  API.patch(`/messages/conversations/${conversationId}/read`, {
+    reader_type: readerType, reader_id: readerId
+  }).then(res => res.data);
+
 export default API;
+

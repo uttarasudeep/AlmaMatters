@@ -11,6 +11,7 @@ import PlaceholderPage from './components/PlaceholderPage';
 import Sessions from './components/Sessions';
 import JobsPage from './components/JobsPage';
 import AlumniJobsDashboard from './components/AlumniJobsDashboard';
+import Messages from './components/Messages';
 
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
@@ -43,7 +44,7 @@ function App() {
             <Route path="home" element={<HomePage />} />
             <Route path="search" element={<SearchUsers />} />
             <Route path="profile/:userType/:userId" element={<UserProfile />} />
-            <Route path="messages" element={<PlaceholderPage title="Message Inbox" />} />
+            <Route path="messages" element={<Messages />} />
             <Route path="sessions" element={<Sessions />} />
             <Route path="progress" element={<PlaceholderPage title="Progress" />} />
             <Route path="jobs" element={<JobsPage />} />

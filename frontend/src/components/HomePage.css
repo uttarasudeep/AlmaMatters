@@ -694,3 +694,182 @@
   font-size: 0.82rem;
   margin: 0;
 }
+
+/* ═══════════════════════════════════════
+   SESSION REQUEST MODAL
+   ═══════════════════════════════════════ */
+
+.session-modal-box {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 92vh;
+  animation: slideUp 0.22s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.session-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.session-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.session-form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.01em;
+}
+
+.session-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.session-form-input {
+  width: 100%;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #1f2937;
+  outline: none;
+  background: #f9fafb;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.session-form-input:focus {
+  border-color: #0a66c2;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.12);
+}
+
+.session-form-textarea {
+  width: 100%;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #1f2937;
+  outline: none;
+  background: #f9fafb;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.session-form-textarea:focus {
+  border-color: #0a66c2;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.12);
+}
+
+.session-error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.session-modal-footer {
+  padding: 14px 24px 18px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.session-modal-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.session-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.session-cancel-btn {
+  background: transparent;
+  border: 1.5px solid #d1d5db;
+  color: #374151;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.session-cancel-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.session-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.session-submit-btn {
+  background: #0a66c2;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.session-submit-btn:hover:not(:disabled) {
+  background: #004182;
+}
+
+.session-submit-btn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.session-btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
