@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const userRoutes = require('./routes/userRoutes');
 const followRoutes = require('./routes/followRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 
 // MIDDLEWARE
@@ -23,6 +24,10 @@ const followRoutes = require('./routes/followRoutes');
 app.use(cors());
 
 app.use(express.json());
+
+// Serve static files from the uploads directory
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // ROUTES
@@ -36,6 +41,7 @@ app.use("/api/sessions", sessionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/network", followRoutes);
 app.use("/api/jobs", require('./routes/jobRoutes'));
+app.use("/api/upload", uploadRoutes);
 
 
 

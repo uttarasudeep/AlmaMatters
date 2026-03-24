@@ -23,9 +23,7 @@ CREATE TABLE student_personal_details (
     blood_group VARCHAR(5),
     nationality VARCHAR(50),
     religion VARCHAR(50),
-    caste_category VARCHAR(50),
     aadhaar_number VARCHAR(20),
-    pan_number VARCHAR(20),
     passport_number VARCHAR(20),
     profile_photo_url TEXT,
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
@@ -50,17 +48,10 @@ CREATE TABLE student_address_details (
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
 );
 
-CREATE TABLE student_guardian_details (
-    student_id BIGINT PRIMARY KEY,
-    father_name VARCHAR(150),
-    father_phone VARCHAR(15),
-    father_occupation VARCHAR(100),
-    mother_name VARCHAR(150),
-    mother_phone VARCHAR(15),
-    mother_occupation VARCHAR(100),
-    guardian_name VARCHAR(150),
-    guardian_phone VARCHAR(15),
-    guardian_relation VARCHAR(50),
+CREATE TABLE student_areas_of_interest (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    student_id BIGINT NOT NULL,
+    area_of_interest VARCHAR(100) NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
 );
 
@@ -335,42 +326,26 @@ CREATE TABLE notifications (
 -- =============================================
 -- TRIGGERS to keep post counts updated
 -- =============================================
-DELIMITER $$
-
 CREATE TRIGGER trg_like_insert AFTER INSERT ON post_likes
 FOR EACH ROW
-BEGIN
     UPDATE posts SET like_count = like_count + 1 WHERE post_id = NEW.post_id;
-END$$
 
 CREATE TRIGGER trg_like_delete AFTER DELETE ON post_likes
 FOR EACH ROW
-BEGIN
     UPDATE posts SET like_count = GREATEST(like_count - 1, 0) WHERE post_id = OLD.post_id;
-END$$
 
 CREATE TRIGGER trg_comment_insert AFTER INSERT ON post_comments
 FOR EACH ROW
-BEGIN
     UPDATE posts SET comment_count = comment_count + 1 WHERE post_id = NEW.post_id;
-END$$
 
 CREATE TRIGGER trg_comment_delete AFTER DELETE ON post_comments
 FOR EACH ROW
-BEGIN
     UPDATE posts SET comment_count = GREATEST(comment_count - 1, 0) WHERE post_id = OLD.post_id;
-END$$
 
 CREATE TRIGGER trg_share_insert AFTER INSERT ON post_shares
 FOR EACH ROW
-BEGIN
     UPDATE posts SET share_count = share_count + 1 WHERE post_id = NEW.post_id;
-END$$
 
 CREATE TRIGGER trg_share_delete AFTER DELETE ON post_shares
 FOR EACH ROW
-BEGIN
     UPDATE posts SET share_count = GREATEST(share_count - 1, 0) WHERE post_id = OLD.post_id;
-END$$
-
-DELIMITER ;

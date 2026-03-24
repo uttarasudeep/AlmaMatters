@@ -33,7 +33,7 @@ function SelectField({ label, name, options, value, onChange, required }) {
     );
 }
 
-const STEP_LABELS = ["Roll No.", "Personal", "Contact", "Address", "Guardian", "Academic", "Login"];
+const STEP_LABELS = ["Roll No.", "Personal", "Contact", "Address", "Academic", "Interests", "Login"];
 
 function StepBar({ current }) {
     return (
@@ -56,7 +56,7 @@ export default function StudentSignup() {
 
     const [steps, setSteps] = useState({
         step1: {}, step2: {}, step3: {}, step4: {},
-        step5: {}, step6: {}, step7: {}
+        step6: {}, step7: {}, areas_of_interest: [], currentInterest: ""
     });
 
     const handleChange = (stepKey) => (e) => {
@@ -68,7 +68,7 @@ export default function StudentSignup() {
     };
 
     const validate = () => {
-        const { step1, step2, step3, step4, step5, step6, step7 } = steps;
+        const { step1, step2, step3, step4, step6, step7, areas_of_interest } = steps;
         if (step === 1 && !step1.roll_number?.trim()) return "Roll number is required.";
         if (step === 2) {
             if (!step2.first_name?.trim())  return "First name is required.";
@@ -79,8 +79,7 @@ export default function StudentSignup() {
             if (!step2.blood_group?.trim()) return "Blood group is required.";
             if (!step2.nationality?.trim()) return "Nationality is required.";
             if (!step2.religion?.trim())    return "Religion is required.";
-            if (!step2.caste_category?.trim()) return "Caste category is required.";
-            if (!step2.profile_photo_url?.trim()) return "Profile photo URL is required.";
+            if (!step2.profile_photo_url?.trim()) return "Profile photo is required.";
         }
         if (step === 3) {
             if (!step3.email?.trim())        return "Email address is required.";
@@ -92,15 +91,12 @@ export default function StudentSignup() {
                 return "All address fields are required.";
         }
         if (step === 5) {
-            if (!step5.father_name?.trim() || !step5.father_phone?.trim() || !step5.father_occupation?.trim() ||
-                !step5.mother_name?.trim() || !step5.mother_phone?.trim() || !step5.mother_occupation?.trim() ||
-                !step5.guardian_name?.trim() || !step5.guardian_phone?.trim() || !step5.guardian_relation?.trim())
-                return "All guardian fields are required.";
-        }
-        if (step === 6) {
             if (!step6.batch_year?.trim() || !step6.admission_date || !step6.expected_graduation_date ||
                 !step6.current_year?.trim() || !step6.current_semester?.trim() || !step6.section?.trim() || !step6.academic_status)
                 return "All academic details are required.";
+        }
+        if (step === 6) {
+            if (!areas_of_interest || areas_of_interest.length === 0) return "Add at least one area of interest.";
         }
         if (step === 7) {
             if (!step7.username?.trim())  return "Username is required.";
@@ -153,9 +149,26 @@ export default function StudentSignup() {
     };
 
     const s1 = steps.step1; const s2 = steps.step2; const s3 = steps.step3;
-    const s4 = steps.step4; const s5 = steps.step5; const s6 = steps.step6;
+    const s4 = steps.step4; const s6 = steps.step6;
     const s7 = steps.step7;
     const ch = handleChange;
+
+    const handleAddInterest = () => {
+        if (steps.currentInterest && steps.currentInterest.trim() !== "") {
+            setSteps(prev => ({
+                ...prev,
+                areas_of_interest: [...prev.areas_of_interest, prev.currentInterest.trim()],
+                currentInterest: ""
+            }));
+        }
+    };
+
+    const handleRemoveInterest = (idx) => {
+        setSteps(prev => ({
+            ...prev,
+            areas_of_interest: prev.areas_of_interest.filter((_, i) => i !== idx)
+        }));
+    };
 
     return (
         <div className="signup-page">
@@ -186,11 +199,27 @@ export default function StudentSignup() {
                             <Field label="Blood Group" name="blood_group" placeholder="e.g. O+" required value={s2.blood_group} onChange={ch("step2")} />
                             <Field label="Nationality" name="nationality" placeholder="e.g. Indian" required value={s2.nationality} onChange={ch("step2")} />
                             <Field label="Religion" name="religion" required value={s2.religion} onChange={ch("step2")} />
-                            <Field label="Caste Category" name="caste_category" placeholder="e.g. General, OBC, SC, ST" required value={s2.caste_category} onChange={ch("step2")} />
                             <Field label="Aadhaar Number" name="aadhaar_number" placeholder="12-digit Aadhaar (Optional)" value={s2.aadhaar_number} onChange={ch("step2")} />
-                            <Field label="PAN Number" name="pan_number" placeholder="e.g. ABCDE1234F (Optional)" value={s2.pan_number} onChange={ch("step2")} />
                             <Field label="Passport Number" name="passport_number" placeholder="Optional" value={s2.passport_number} onChange={ch("step2")} />
-                            <Field label="Profile Photo URL" name="profile_photo_url" placeholder="https://…" required value={s2.profile_photo_url} onChange={ch("step2")} />
+                            <div className="field-group">
+                                <label className="field-label">Profile Photo<span className="required-star"> *</span></label>
+                                <input type="file" accept="image/*" onChange={async (e) => {
+                                    if(e.target.files && e.target.files[0]) {
+                                        const fd = new FormData();
+                                        fd.append("profile_photo", e.target.files[0]);
+                                        try {
+                                            const res = await fetch("http://localhost:3000/api/upload", { method: "POST", body: fd });
+                                            const data = await res.json();
+                                            if(data.url) {
+                                                setSteps(prev => ({...prev, step2: {...prev.step2, profile_photo_url: data.url}}));
+                                            }
+                                        } catch(err) {
+                                            setError("Photo upload failed");
+                                        }
+                                    }
+                                }} className="field-input" />
+                                {s2.profile_photo_url && <span style={{color: 'green', fontSize: '13px', marginTop: '4px', display: 'block'}}>Photo uploaded successfully!</span>}
+                            </div>
                         </section>
                     )}
                     {step === 3 && (
@@ -217,20 +246,6 @@ export default function StudentSignup() {
                     )}
                     {step === 5 && (
                         <section>
-                            <h3>Guardian Details</h3>
-                            <Field label="Father's Name" name="father_name" required value={s5.father_name} onChange={ch("step5")} />
-                            <Field label="Father's Phone" name="father_phone" type="tel" required value={s5.father_phone} onChange={ch("step5")} />
-                            <Field label="Father's Occupation" name="father_occupation" required value={s5.father_occupation} onChange={ch("step5")} />
-                            <Field label="Mother's Name" name="mother_name" required value={s5.mother_name} onChange={ch("step5")} />
-                            <Field label="Mother's Phone" name="mother_phone" type="tel" required value={s5.mother_phone} onChange={ch("step5")} />
-                            <Field label="Mother's Occupation" name="mother_occupation" required value={s5.mother_occupation} onChange={ch("step5")} />
-                            <Field label="Guardian's Name" name="guardian_name" required placeholder="Required" value={s5.guardian_name} onChange={ch("step5")} />
-                            <Field label="Guardian's Phone" name="guardian_phone" type="tel" required value={s5.guardian_phone} onChange={ch("step5")} />
-                            <Field label="Guardian's Relation" name="guardian_relation" required placeholder="e.g. Uncle" value={s5.guardian_relation} onChange={ch("step5")} />
-                        </section>
-                    )}
-                    {step === 6 && (
-                        <section>
                             <h3>Academic Details</h3>
                             <Field label="Batch Year" name="batch_year" required placeholder="e.g. 2021" value={s6.batch_year} onChange={ch("step6")} />
                             <Field label="Admission Date" name="admission_date" type="date" required value={s6.admission_date} onChange={ch("step6")} />
@@ -241,6 +256,26 @@ export default function StudentSignup() {
                             <SelectField label="Academic Status" name="academic_status" required
                                 options={["Active", "Detained", "Passed Out", "Lateral Entry"]}
                                 value={s6.academic_status} onChange={ch("step6")} />
+                        </section>
+                    )}
+                    {step === 6 && (
+                        <section>
+                            <h3>Areas of Interest</h3>
+                            <div className="field-group" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label className="field-label">Add Interest<span className="required-star"> *</span></label>
+                                    <input type="text" value={steps.currentInterest} onChange={(e) => setSteps(p => ({...p, currentInterest: e.target.value}))} placeholder="e.g. Machine Learning" className="field-input" />
+                                </div>
+                                <button type="button" onClick={handleAddInterest} style={{ padding: '10px 15px', height: '42px', border: 'none', background: '#3b82f6', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>Add</button>
+                            </div>
+                            <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {steps.areas_of_interest.map((area, idx) => (
+                                    <span key={idx} style={{ background: '#eef2ff', color: '#4f46e5', padding: '5px 12px', borderRadius: '15px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        {area}
+                                        <button type="button" onClick={() => handleRemoveInterest(idx)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&times;</button>
+                                    </span>
+                                ))}
+                            </div>
                         </section>
                     )}
                     {step === 7 && (

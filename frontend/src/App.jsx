@@ -18,6 +18,7 @@ import AdminDashboard from './components/AdminDashboard';
 import StudentSignup from './components/StudentSignup';
 import AlumniSignup from './components/AlumniSignup';
 import AdminSignup from './components/AdminSignup';
+import EditStudentProfile from './components/EditStudentProfile';
 
 import UserLayout from './components/UserLayout';  // new layout component
 
@@ -48,6 +49,7 @@ function App() {
             <Route path="jobs" element={<JobsPage />} />
             <Route path="alumni-jobs" element={<AlumniJobsDashboard />} />
             <Route path="communities" element={<PlaceholderPage title="Communities" />} />
+            <Route path="edit-profile" element={<EditStudentProfile />} />
           </Route>
         </Routes>
       </div>

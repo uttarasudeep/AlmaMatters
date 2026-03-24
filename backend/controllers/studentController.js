@@ -17,7 +17,9 @@ function friendlyError(err) {
 
 // POST /api/students/register-full
 exports.registerFull = async (req, res) => {
-    const { step1, step2, step3, step4, step5, step6, step7 } = req.body;
+    const { step1, step2, step3, step4, step6, step7, areas_of_interest } = req.body;
+
+    const opt = (val) => (val === "" ? null : val);
 
     if (!step1?.roll_number) return res.status(400).json({ message: "Roll number is required." });
     if (!step7?.username)    return res.status(400).json({ message: "Username is required." });
@@ -40,13 +42,13 @@ exports.registerFull = async (req, res) => {
         await connection.query(
             `INSERT INTO student_personal_details
              (student_id, first_name, last_name, full_name, date_of_birth, gender,
-              blood_group, nationality, religion, caste_category, aadhaar_number,
-              pan_number, passport_number, profile_photo_url)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+              blood_group, nationality, religion, aadhaar_number,
+              passport_number, profile_photo_url)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
             [studentId, step2?.first_name, step2?.last_name, step2?.full_name,
-             step2?.date_of_birth, step2?.gender, step2?.blood_group,
-             step2?.nationality, step2?.religion, step2?.caste_category,
-             step2?.aadhaar_number, step2?.pan_number, step2?.passport_number,
+             opt(step2?.date_of_birth), step2?.gender, step2?.blood_group,
+             step2?.nationality, step2?.religion,
+             step2?.aadhaar_number, step2?.passport_number,
              step2?.profile_photo_url]
         );
 
@@ -67,19 +69,8 @@ exports.registerFull = async (req, res) => {
              step4?.city, step4?.state, step4?.pincode, step4?.country]
         );
 
-        // STEP 5: guardian
-        await connection.query(
-            `INSERT INTO student_guardian_details
-             (student_id, father_name, father_phone, father_occupation,
-              mother_name, mother_phone, mother_occupation,
-              guardian_name, guardian_phone, guardian_relation)
-             VALUES (?,?,?,?,?,?,?,?,?,?)`,
-            [studentId, step5?.father_name, step5?.father_phone,
-             step5?.father_occupation, step5?.mother_name,
-             step5?.mother_phone, step5?.mother_occupation,
-             step5?.guardian_name, step5?.guardian_phone,
-             step5?.guardian_relation]
-        );
+        // STEP 5: guardian removed
+
 
         // STEP 6: academic
         await connection.query(
@@ -88,9 +79,9 @@ exports.registerFull = async (req, res) => {
               expected_graduation_date, current_year,
               current_semester, section, academic_status)
              VALUES (?,?,?,?,?,?,?,?)`,
-            [studentId, step6?.batch_year, step6?.admission_date,
-             step6?.expected_graduation_date, step6?.current_year,
-             step6?.current_semester, step6?.section,
+            [studentId, opt(step6?.batch_year), opt(step6?.admission_date),
+             opt(step6?.expected_graduation_date), opt(step6?.current_year),
+             opt(step6?.current_semester), step6?.section,
              step6?.academic_status]
         );
 
@@ -114,6 +105,18 @@ exports.registerFull = async (req, res) => {
              VALUES (?,?,?,?)`,
             [studentId, step7.username, passwordHash, "ACTIVE"]
         );
+
+        // EXTRA: areas of interest
+        if (areas_of_interest && Array.isArray(areas_of_interest) && areas_of_interest.length > 0) {
+            for (const area of areas_of_interest) {
+                if (area.trim()) {
+                    await connection.query(
+                        `INSERT INTO student_areas_of_interest (student_id, area_of_interest) VALUES (?,?)`,
+                        [studentId, area.trim()]
+                    );
+                }
+            }
+        }
 
         await connection.commit();
         connection.release();
@@ -216,5 +219,112 @@ exports.checkRollNumber = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Database error" });
+    }
+};
+
+// GET /api/students/profile/:id
+exports.getStudentProfile = async (req, res) => {
+    const studentId = req.params.id;
+    try {
+        const [studentRows] = await db.query("SELECT * FROM students WHERE student_id = ?", [studentId]);
+        if (!studentRows.length) return res.status(404).json({ message: "Student not found" });
+
+        const [personalRows] = await db.query("SELECT * FROM student_personal_details WHERE student_id = ?", [studentId]);
+        const [contactRows] = await db.query("SELECT * FROM student_contact_details WHERE student_id = ?", [studentId]);
+        const [addressRows] = await db.query("SELECT * FROM student_address_details WHERE student_id = ?", [studentId]);
+        const [academicRows] = await db.query("SELECT * FROM student_academic_details WHERE student_id = ?", [studentId]);
+        const [interestRows] = await db.query("SELECT * FROM student_areas_of_interest WHERE student_id = ?", [studentId]);
+
+        const data = {
+            step1: { roll_number: studentRows[0].roll_number },
+            step2: personalRows[0] || {},
+            step3: contactRows[0] || {},
+            step4: addressRows[0] || {},
+            step6: academicRows[0] || {},
+            areas_of_interest: interestRows.map(row => row.area_of_interest)
+        };
+
+        if (data.step2.date_of_birth) {
+            data.step2.date_of_birth = new Date(data.step2.date_of_birth).toISOString().split('T')[0];
+        }
+        if (data.step6.admission_date) {
+            data.step6.admission_date = new Date(data.step6.admission_date).toISOString().split('T')[0];
+        }
+        if (data.step6.expected_graduation_date) {
+            data.step6.expected_graduation_date = new Date(data.step6.expected_graduation_date).toISOString().split('T')[0];
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("getStudentProfile error:", err);
+        res.status(500).json({ message: "Failed to fetch profile" });
+    }
+};
+
+// PUT /api/students/profile/:id
+exports.updateStudentProfile = async (req, res) => {
+    const studentId = req.params.id;
+    const { step2, step3, step4, step6, areas_of_interest } = req.body;
+
+    const opt = (val) => (val === "" ? null : val);
+
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        await connection.query(
+            `UPDATE student_personal_details 
+             SET first_name=?, last_name=?, full_name=?, date_of_birth=?, gender=?, 
+                 blood_group=?, nationality=?, religion=?, aadhaar_number=?, 
+                 passport_number=?, profile_photo_url=? 
+             WHERE student_id=?`,
+            [step2?.first_name, step2?.last_name, step2?.full_name, opt(step2?.date_of_birth), step2?.gender,
+             step2?.blood_group, step2?.nationality, step2?.religion, step2?.aadhaar_number,
+             step2?.passport_number, step2?.profile_photo_url, studentId]
+        );
+
+        await connection.query(
+            `UPDATE student_contact_details 
+             SET email=?, phone_number=?, alternate_phone_number=? 
+             WHERE student_id=?`,
+            [step3?.email, step3?.phone_number, step3?.alternate_phone_number, studentId]
+        );
+
+        await connection.query(
+            `UPDATE student_address_details 
+             SET address_line1=?, address_line2=?, city=?, state=?, pincode=?, country=? 
+             WHERE student_id=?`,
+            [step4?.address_line1, step4?.address_line2, step4?.city, step4?.state, step4?.pincode, step4?.country, studentId]
+        );
+
+        await connection.query(
+            `UPDATE student_academic_details 
+             SET batch_year=?, admission_date=?, expected_graduation_date=?, current_year=?, 
+                 current_semester=?, section=?, academic_status=? 
+             WHERE student_id=?`,
+            [opt(step6?.batch_year), opt(step6?.admission_date), opt(step6?.expected_graduation_date), opt(step6?.current_year),
+             opt(step6?.current_semester), step6?.section, step6?.academic_status, studentId]
+        );
+
+        await connection.query(`DELETE FROM student_areas_of_interest WHERE student_id=?`, [studentId]);
+        if (areas_of_interest && Array.isArray(areas_of_interest) && areas_of_interest.length > 0) {
+            for (const area of areas_of_interest) {
+                if (area.trim()) {
+                    await connection.query(
+                        `INSERT INTO student_areas_of_interest (student_id, area_of_interest) VALUES (?,?)`,
+                        [studentId, area.trim()]
+                    );
+                }
+            }
+        }
+
+        await connection.commit();
+        connection.release();
+        res.json({ message: "Profile updated successfully!" });
+    } catch (err) {
+        await connection.rollback();
+        connection.release();
+        console.error("updateStudentProfile error:", err);
+        res.status(500).json({ message: "Failed to update profile" });
     }
 };

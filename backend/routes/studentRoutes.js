@@ -12,4 +12,8 @@ router.post("/login-by-email", studentController.loginByEmail);
 // NEW: Check if roll number exists
 router.get('/check-roll/:rollNumber', studentController.checkRollNumber);
 
+// Profile fetch & update
+router.get('/profile/:id', studentController.getStudentProfile);
+router.put('/profile/:id', studentController.updateStudentProfile);
+
 module.exports = router;

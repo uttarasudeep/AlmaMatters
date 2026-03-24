@@ -205,7 +205,12 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* Action Buttons (External viewing) */}
+        {/* Action Buttons */}
+        {isSelf && currentUser && currentUser.type === 'student' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={() => navigate(`/${currentUser.username}/edit-profile`)} style={{ padding: '10px 25px', borderRadius: '25px', border: 'none', background: '#e67e22', color: 'white', fontWeight: 'bold', cursor: 'pointer', minWidth: '120px' }}>Edit Profile</button>
+          </div>
+        )}
         {!isSelf && currentUser && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
             {followStatus === 'accepted' ? (
