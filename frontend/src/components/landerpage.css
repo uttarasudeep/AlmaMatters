@@ -1,51 +1,39 @@
+/* ===================================================
+   CSS VARIABLES
+   =================================================== */
 :root {
-
-  /* ========= COLOR VARIABLES ========= */
-
-  --alpine-green: #184d3b;
-  --creme: #cead6b;
-  --white: #d5c4a1;
-  --gold: #966919;
-
-  /* ========= GRADIENT VARIABLE ========= */
-
-  --nav-gradient: linear-gradient(
-    to right,
-    var(--alpine-green) 0%,
-    var(--creme) 100%
-  );
-
-  /* ========= BACKGROUND VARIABLE ========= */
-
-  --body-bg: var(--white);
-
+  --mid-blue:   #131e30;
+  --denim-blue: #1c65a0;
+  --ocean-blue: #8fb6d8;
+  --white:      #ffffff;
+  --nav-gradient: linear-gradient(to right, var(--ocean-blue) 30%, var(--denim-blue) 70%);
 }
 
 
-/* PAGE */
-
+/* ===================================================
+   PAGE
+   =================================================== */
 .page {
   min-height: 100vh;
-  background-color: var(--body-bg);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  background: var(--nav-gradient);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
 
 
-/* HEADER / NAVBAR */
-
+/* ===================================================
+   HEADER
+   =================================================== */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  /* APPLY GRADIENT HERE */
-  background: var(--nav-gradient);
+  background: var(--mid-blue);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-
-
-/* LOGO SECTION */
 
 .logo-section {
   display: flex;
@@ -57,24 +45,15 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+  object-fit: cover;
 }
 
 .brand-name {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.3px;
 }
-
-.logoimg1{
-    height: fit-content;
-}
-
-
-/* NAV LINKS */
 
 .nav-links {
   display: flex;
@@ -86,117 +65,507 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  color: #111827;
+  color: #d1dce8;
+  transition: color 0.2s;
 }
 
 .nav-links a:hover {
   color: var(--white);
 }
 
-
-/* CONTACT BUTTON */
-
 .contact-btn {
-
   padding: 8px 16px;
-  background-color: var(--white);
-
-  color: var(--alpine-green) !important;
-
+  background-color: var(--denim-blue);
+  color: var(--white) !important;
   border-radius: 8px;
+  transition: background 0.2s, transform 0.15s;
 }
 
 .contact-btn:hover {
-
-  background-color: var(--alpine-green);
-  color: var(--white) !important;
-
+  background-color: var(--ocean-blue) !important;
+  transform: translateY(-1px);
 }
 
 
-/* MAIN */
-
+/* ===================================================
+   MAIN
+   =================================================== */
 .main {
-  height: 80vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
+  padding: 40px 20px 60px;
+  color: #111;
+}
+
+.firstpara {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.firstpara p:first-child {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--mid-blue);
+  margin: 0 0 6px;
+}
+
+.firstpara p:last-child {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--mid-blue);
+  margin: 0;
 }
 
 
-/* FIRST PARA */
-
-.firstpara
-{
-    color: var(--alpine-green);
-    font-weight: 650;
-    font-size: larger;
-}
-
-
-/* HERO IMAGE SLIDER */
-
-.heroimage {
+/* ===================================================
+   CAROUSEL
+   =================================================== */
+.carousel-wrapper {
+  position: relative;
   width: 100%;
   max-width: 900px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Viewport ── */
+.carousel-viewport {
+  flex: 1;
   height: 360px;
   overflow: hidden;
-  margin-top: 30px;
   border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(19, 30, 48, 0.22);
+  position: relative;
 }
 
-
-/* Slider container */
-
-.slider {
-  display: flex;
+/* ── Slide ── */
+.cs-slide {
+  width: 100%;
   height: 100%;
-  animation: slide 35s infinite linear;
+  position: relative;
 }
 
+.cs-active {
+  animation: slideIn 0.42s cubic-bezier(0.22, 0.68, 0.36, 1) both;
+}
 
-/* Individual images */
+.cs-exit-left {
+  animation: exitLeft 0.42s cubic-bezier(0.55, 0, 0.78, 0.32) both;
+}
 
-.slider img {
+.cs-exit-right {
+  animation: exitRight 0.42s cubic-bezier(0.55, 0, 0.78, 0.32) both;
+}
 
-  width: 900px;
+@keyframes slideIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes exitLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-40px); }
+}
+
+@keyframes exitRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(40px); }
+}
+
+/* ── Carousel image ── */
+.carousel-img {
+  width: 100%;
   height: 100%;
-
   object-fit: cover;
-
   object-position: center;
+  display: block;
+}
 
+/* ── Gradient overlay & hint ── */
+.carousel-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(13, 22, 40, 0.55) 0%, transparent 55%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 24px;
+  transition: background 0.3s;
+}
+
+.carousel-viewport:hover .carousel-overlay {
+  background: linear-gradient(to top, rgba(13, 22, 40, 0.72) 0%, transparent 55%);
+}
+
+.carousel-tag {
+  display: inline-block;
+  background: var(--denim-blue);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 6px;
+}
+
+.carousel-hint {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.carousel-viewport:hover .carousel-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Arrow buttons ── */
+.arrow {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: var(--mid-blue);
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  z-index: 10;
+}
 
+.arrow:hover {
+  background: var(--denim-blue);
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.arrow:active {
+  transform: scale(0.95);
+}
+
+.arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+.arrow-left  { margin-right: 14px; }
+.arrow-right { margin-left: 14px; }
+
+/* ── Dot indicators ── */
+.carousel-dots {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(19, 30, 48, 0.3);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s, transform 0.2s;
+}
+
+.dot-active {
+  background: var(--denim-blue);
+  transform: scale(1.3);
 }
 
 
-/* Animation */
-
-@keyframes slide {
-
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-4500px);
-  }
-
-}
-
-
-/* TRUSTED BY */
-
+/* ===================================================
+   TRUSTED BY
+   =================================================== */
 .trustedby {
-
-    display: flex;
-
+  text-align: center;
+  margin-top: 58px;
+  color: var(--mid-blue);
 }
 
-.collegelogos{
-  margin-left: 15px;
-  align-self: center;
+.trustedby h4 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  opacity: 0.65;
+  margin-bottom: 0;
+}
+
+.logos-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.collegelogos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+  background: transparent;
+  isolation: auto;
+}
+
+.collegelogos:hover {
+  transform: translateY(-3px);
+  background: transparent;
+}
+
+.collegelogos img {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+  filter: contrast(1.1);
+  transition: opacity 0.2s, transform 0.2s;
+  background: transparent;
+  pointer-events: none; /* prevent img itself from triggering separate hover */
+}
+
+.collegelogos:hover img {
+  opacity: 1;
+  mix-blend-mode: multiply;
+  filter: contrast(1.15) brightness(0.95);
+  background: transparent;
+}
+
+.collegelogos p {
+  font-size: 12px;
+  margin-top: 6px;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+
+/* ===================================================
+   SPLIT-PANEL MODAL
+   =================================================== */
+
+/* ── Backdrop ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 32, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: background 0.45s ease;
+}
+
+.modal-backdrop-in {
+  background: rgba(10, 18, 32, 0.78);
+}
+
+/* ── Container ── */
+.modal-container {
+  width: min(860px, 92vw);
+  height: min(540px, 88vh);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55);
+  position: relative;
+}
+
+/* ── Shared panel base ── */
+.modal-panel {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── TOP PANEL — image, slides down from above ── */
+.modal-top {
+  transform: translateY(-100%);
+  transition: transform 0.48s cubic-bezier(0.22, 0.68, 0.36, 1);
+}
+
+.panel-top-in {
+  transform: translateY(0);
+}
+
+.modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Close button lives on the image panel */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  color: var(--white);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(1.1);
+}
+
+/* ── BOTTOM PANEL — content, slides up from below ── */
+.modal-bottom {
+  background: var(--mid-blue);
+  transform: translateY(100%);
+  transition: transform 0.48s cubic-bezier(0.22, 0.68, 0.36, 1) 0.06s;
+  padding: 28px 36px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.panel-bottom-in {
+  transform: translateY(0);
+}
+
+.modal-tag {
+  display: inline-block;
+  background: rgba(143, 182, 216, 0.18);
+  color: var(--ocean-blue);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 10px;
+  border: 1px solid rgba(143, 182, 216, 0.25);
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 0 12px;
+  line-height: 1.25;
+}
+
+.modal-desc {
+  font-size: 0.92rem;
+  color: #9ab3c8;
+  line-height: 1.65;
+  margin: 0 0 20px;
+  max-width: 620px;
+}
+
+/* ── CTA buttons ── */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.modal-cta {
+  display: inline-block;
+  padding: 10px 26px;
+  background: var(--denim-blue);
+  color: var(--white);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.modal-cta:hover {
+  background: var(--ocean-blue);
+  transform: translateY(-1px);
+}
+
+.modal-secondary {
+  padding: 10px 20px;
+  background: transparent;
+  color: #6a8da8;
+  border: 1px solid rgba(106, 141, 168, 0.35);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.modal-secondary:hover {
+  border-color: var(--ocean-blue);
+  color: var(--ocean-blue);
+}
+
+
+/* ===================================================
+   RESPONSIVE
+   =================================================== */
+@media (max-width: 640px) {
+  .carousel-wrapper {
+    gap: 0;
+  }
+
+  .arrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .arrow-left  { margin-right: 8px; }
+  .arrow-right { margin-left: 8px; }
+
+  .carousel-viewport {
+    height: 240px;
+  }
+
+  .modal-bottom {
+    padding: 20px 22px 18px;
+  }
+
+  .modal-title {
+    font-size: 1.15rem;
+  }
+
+  .modal-desc {
+    font-size: 0.83rem;
+  }
+
+  .logos-row {
+    gap: 32px;
+  }
 }
