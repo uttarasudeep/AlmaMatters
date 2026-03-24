@@ -217,4 +217,13 @@ export const getFollowing = (userType, userId) =>
 export const getPendingRequests = (userType, userId) =>
   API.get(`/network/${userType}/${userId}/requests`).then(res => res.data);
 
+export const getUserPosts = (userType, userId, page = 1, limit = 20) =>
+  API.get(`/posts/user/${userType}/${userId}?page=${page}&limit=${limit}`).then(res => res.data);
+
+export const getUserActivity = (userType, userId, page = 1, limit = 20) =>
+  API.get(`/posts/user/${userType}/${userId}/activity?page=${page}&limit=${limit}`).then(res => res.data);
+
+export const getUserAttendedSessions = (userType, userId) =>
+  API.get(`/sessions/user/${userType}/${userId}/attended`).then(res => res.data);
+
 export default API;

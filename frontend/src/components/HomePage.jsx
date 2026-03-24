@@ -404,9 +404,13 @@ export default function HomePage() {
           <span className="nav-icon">📅</span>
           <span>Sessions</span>
         </button>
-        <button className="bottom-nav-item" onClick={() => navigate(`/${username}/progress`)}>
-          <span className="nav-icon">📈</span>
-          <span>Progress</span>
+        <button className="bottom-nav-item" onClick={() => {
+          if (currentUser) {
+            navigate(`/${username}/profile/${currentUser.type}/${currentUser.id}`);
+          }
+        }}>
+          <span className="nav-icon">👤</span>
+          <span>Profile</span>
         </button>
         <button className="bottom-nav-item post-btn" onClick={() => setShowCreateModal(true)}>
           <span className="nav-icon add-icon">➕</span>
