@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './HomePage.css';
 import logo from '../assets/almamatterslogowithname.jpeg';
-import { getFeed, createPost, likePost, unlikePost, getComments, addComment, sharePost } from './api';
+import { getFeed, createPost, deletePost, likePost, unlikePost, getComments, addComment, sharePost, deleteComment } from './api';
 
 // ── helpers ──────────────────────────────────────────────────
-function timeAgo(dateStr) {
+export function timeAgo(dateStr) {
   const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
   if (diff < 60) return 'just now';
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
@@ -13,14 +13,14 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-function Avatar({ name, url, size = 38 }) {
+export function Avatar({ name, url, size = 38 }) {
   if (url) return <img src={url} alt={name} className="post-avatar-img" style={{ width: size, height: size }} />;
   const letter = (name || '?')[0].toUpperCase();
   return <div className="post-avatar" style={{ width: size, height: size, fontSize: size * 0.45 }}>{letter}</div>;
 }
 
 // ── Comment component (recursive) ────────────────────────────
-function Comment({ comment, postId, currentUser, onReply }) {
+export function Comment({ comment, postId, currentUser, onReply, onDelete }) {
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState('');
 
@@ -41,7 +41,12 @@ function Comment({ comment, postId, currentUser, onReply }) {
         </div>
       </div>
       <p className="comment-text">{comment.content}</p>
-      <button className="reply-btn" onClick={() => setShowReply(v => !v)}>↩ Reply</button>
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <button className="reply-btn" onClick={() => setShowReply(v => !v)}>↩ Reply</button>
+        {currentUser && currentUser.type === comment.commenter_type && String(currentUser.id) === String(comment.commenter_id) && (
+          <button className="reply-btn" onClick={() => onDelete(comment.comment_id)} style={{ color: '#e74c3c' }}>🗑️ Delete</button>
+        )}
+      </div>
       {showReply && (
         <div className="reply-input-row">
           <input
@@ -57,7 +62,7 @@ function Comment({ comment, postId, currentUser, onReply }) {
       {comment.replies && comment.replies.length > 0 && (
         <div className="replies-list">
           {comment.replies.map(r => (
-            <Comment key={r.comment_id} comment={r} postId={postId} currentUser={currentUser} onReply={onReply} />
+            <Comment key={r.comment_id} comment={r} postId={postId} currentUser={currentUser} onReply={onReply} onDelete={onDelete} />
           ))}
         </div>
       )}
@@ -66,7 +71,7 @@ function Comment({ comment, postId, currentUser, onReply }) {
 }
 
 // ── PostCard component ────────────────────────────────────────
-function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare }) {
+export function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare, onDelete }) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
@@ -115,6 +120,17 @@ function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare }) {
     setCommentText('');
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      await deleteComment(post.post_id, commentId);
+      const data = await getComments(post.post_id);
+      setComments(data.comments || []);
+    } catch {
+      alert("Failed to delete comment.");
+    }
+  };
+
   return (
     <div className="post-card">
       <div className="post-header">
@@ -147,6 +163,11 @@ function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare }) {
         <button className="action-btn" onClick={() => onShare(post.post_id)}>
           📤 Share
         </button>
+        {currentUser && currentUser.type === post.poster_type && String(currentUser.id) === String(post.poster_id) && (
+          <button className="action-btn" onClick={() => onDelete(post.post_id)} style={{ color: '#e74c3c' }}>
+            🗑️ Delete
+          </button>
+        )}
       </div>
 
       {showComments && (
@@ -177,6 +198,7 @@ function PostCard({ post, currentUser, onLike, onUnlike, onComment, onShare }) {
                     postId={post.post_id}
                     currentUser={currentUser}
                     onReply={handleAddComment}
+                    onDelete={handleDeleteComment}
                   />
                 ))
               )}
@@ -371,6 +393,17 @@ export default function HomePage() {
     console.log('Shared post', postId);
   };
 
+  const handleDelete = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await deletePost(postId);
+      setPosts(prev => prev.filter(p => p.post_id !== postId));
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      alert("Failed to delete post.");
+    }
+  };
+
   const loadMore = () => {
     const next = page + 1;
     setPage(next);
@@ -434,6 +467,7 @@ export default function HomePage() {
                 onUnlike={handleUnlike}
                 onComment={handleComment}
                 onShare={handleShare}
+                onDelete={handleDelete}
               />
             ))}
             {hasMore && (

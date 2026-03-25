@@ -8,41 +8,8 @@ import {
 import './UserProfile.css';
 
 // --- Helpers ---
-function timeAgo(dateStr) {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function Avatar({ name, url, size = 38 }) {
-  if (url) return <img src={url} alt={name} className="post-avatar-img" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }} />;
-  const letter = (name || '?')[0].toUpperCase();
-  return <div className="post-avatar" style={{ width: size, height: size, fontSize: size * 0.45, borderRadius: '50%', background: '#3498db', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{letter}</div>;
-}
-
-// Minimal PostCard just for profile overview
-function BasicPostCard({ post }) {
-  return (
-    <div style={{ background: 'white', padding: '15px', borderRadius: '10px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '15px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-        <Avatar name={post.poster_name} url={post.poster_avatar} size={32} />
-        <div style={{ marginLeft: '10px' }}>
-          <div style={{ fontWeight: 'bold' }}>{post.poster_name}</div>
-          <div style={{ fontSize: '0.8rem', color: '#7f8c8d' }}>{timeAgo(post.created_at)}</div>
-        </div>
-      </div>
-      <p style={{ margin: '0 0 10px 0', color: '#333' }}>{post.content}</p>
-      {post.media_url && <img src={post.media_url} alt="post media" style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }} />}
-      <div style={{ display: 'flex', gap: '15px', color: '#7f8c8d', fontSize: '0.9rem' }}>
-        <span>❤️ {post.like_count}</span>
-        <span>💬 {post.comment_count}</span>
-        <span>📤 {post.share_count}</span>
-      </div>
-    </div>
-  );
-}
+import { PostCard, Avatar } from './HomePage';
+import { deletePost, likePost, unlikePost, addComment, sharePost } from './api';
 
 export default function UserProfile() {
   const { username, userType, userId } = useParams();
@@ -159,6 +126,48 @@ export default function UserProfile() {
     }
   };
 
+  const handleLike = (postId) => {
+    if (!currentUser) return Promise.resolve({ like_count: 0 });
+    return likePost(postId, currentUser.type, currentUser.id);
+  };
+
+  const handleUnlike = (postId) => {
+    if (!currentUser) return Promise.resolve({ like_count: 0 });
+    return unlikePost(postId, currentUser.type, currentUser.id);
+  };
+
+  const handleComment = (postId, text, parentId) => {
+    if (!currentUser) return Promise.resolve();
+    return addComment(postId, {
+      commenter_type: currentUser.type,
+      commenter_id: currentUser.id,
+      content: text,
+      parent_comment_id: parentId || null,
+    });
+  };
+
+  const handleShare = (postId) => {
+    if (!currentUser) return;
+    sharePost(postId, currentUser.type, currentUser.id).catch(console.error);
+    console.log('Shared post', postId);
+  };
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await deletePost(postId);
+      if (activeTab === 'posts') {
+        setPosts(prev => prev.filter(p => p.post_id !== postId));
+      } else if (activeTab === 'activity') {
+        setActivity(prev => prev.filter(p => p.post_id !== postId));
+      }
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      // alert("Failed to delete post."); 
+      // avoiding alert for smooth UI
+    }
+  };
+
   const openUsersModal = async (type) => { // 'followers' or 'following'
     setShowModal(type);
     setModalUsers([]);
@@ -257,11 +266,11 @@ export default function UserProfile() {
           <>
             {activeTab === 'posts' && (
               posts.length === 0 ? <p style={{ textAlign: 'center', color: '#7f8c8d', padding: '40px' }}>No posts yet.</p> : 
-              posts.map(p => <BasicPostCard key={p.post_id} post={p} />)
+              posts.map(p => <PostCard key={p.post_id} post={p} currentUser={currentUser} onLike={handleLike} onUnlike={handleUnlike} onComment={handleComment} onShare={handleShare} onDelete={handleDelete} />)
             )}
             {activeTab === 'activity' && (
               activity.length === 0 ? <p style={{ textAlign: 'center', color: '#7f8c8d', padding: '40px' }}>No recent activity.</p> : 
-              activity.map(p => <BasicPostCard key={p.post_id} post={p} />)
+              activity.map(p => <PostCard key={p.post_id} post={p} currentUser={currentUser} onLike={handleLike} onUnlike={handleUnlike} onComment={handleComment} onShare={handleShare} onDelete={handleDelete} />)
             )}
             {activeTab === 'sessions' && (
               sessions.length === 0 ? <p style={{ textAlign: 'center', color: '#7f8c8d', padding: '40px' }}>No sessions attended.</p> : 
