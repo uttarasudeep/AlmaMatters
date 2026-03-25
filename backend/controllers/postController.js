@@ -1,6 +1,5 @@
 const db = require('../database');
 
-// Helper: resolve a poster's display name from the DB
 async function getPosterName(posterType, posterId) {
   let query, params;
   if (posterType === 'student') {
@@ -25,36 +24,45 @@ async function getPosterName(posterType, posterId) {
   return rows[0] || { name: 'Unknown User', profile_photo_url: null };
 }
 
-// GET /api/posts/feed
+// GET /api/posts/feed – feed (customized by followers if logged in)
 exports.getFeed = async (req, res) => {
   try {
-    const page  = Math.max(parseInt(req.query.page  || 1), 1);
-    const limit = Math.min(parseInt(req.query.limit || 20), 50);
+    const pageRaw = parseInt(req.query.page);
+    const limitRaw = parseInt(req.query.limit);
+    const page = isNaN(pageRaw) ? 1 : Math.max(pageRaw, 1);
+    const limit = isNaN(limitRaw) ? 20 : Math.min(limitRaw, 50);
     const offset = (page - 1) * limit;
+
     const { viewer_type, viewer_id } = req.query;
+    let query, params;
 
-    let query = `
-      SELECT p.post_id, p.poster_type, p.poster_id, p.content, p.media_url,
-             p.like_count, p.comment_count, p.share_count, p.created_at
-      FROM posts p
-      WHERE p.poster_type = ? AND p.poster_id = ?
-         OR EXISTS (
-           SELECT 1 FROM user_followers uf 
-           WHERE uf.follower_type = ? AND uf.follower_id = ? 
-             AND uf.following_type = p.poster_type AND uf.following_id = p.poster_id
-             AND uf.status = 'accepted'
-         )
-         OR ? = 'admin'
-      ORDER BY p.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
+    if (viewer_type && viewer_id && viewer_type !== 'undefined' && viewer_id !== 'undefined') {
+      // Get posts from self or from followed users
+      query = `
+        SELECT DISTINCT p.post_id, p.poster_type, p.poster_id, p.content, p.media_url,
+               p.like_count, p.comment_count, p.share_count, p.created_at
+        FROM posts p
+        LEFT JOIN user_followers uf ON p.poster_type = uf.following_type AND p.poster_id = uf.following_id
+        WHERE (p.poster_type = ? AND p.poster_id = ?)
+           OR (uf.follower_type = ? AND uf.follower_id = ? AND uf.status = 'accepted')
+           OR (? = 'admin') -- admin sees everything
+        ORDER BY p.created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      params = [viewer_type, viewer_id, viewer_type, viewer_id, viewer_type, limit, offset];
+    } else {
+      // Fallback global feed
+      query = `
+        SELECT post_id, poster_type, poster_id, content, media_url,
+               like_count, comment_count, share_count, created_at
+        FROM posts
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      params = [limit, offset];
+    }
 
-    const [posts] = await db.execute(query, [
-      viewer_type || 'none', viewer_id || 0,
-      viewer_type || 'none', viewer_id || 0,
-      viewer_type || 'none',
-      limit, offset
-    ]);
+    const [posts] = await db.query(query, params);
 
     const enriched = await Promise.all(
       posts.map(async (post) => {
@@ -231,7 +239,7 @@ exports.sharePost = async (req, res) => {
 exports.getUserPosts = async (req, res) => {
   try {
     const { userType, userId } = req.params;
-    const page  = Math.max(parseInt(req.query.page  || 1), 1);
+    const page = Math.max(parseInt(req.query.page || 1), 1);
     const limit = Math.min(parseInt(req.query.limit || 20), 50);
     const offset = (page - 1) * limit;
 
@@ -244,7 +252,7 @@ exports.getUserPosts = async (req, res) => {
       LIMIT ? OFFSET ?
     `;
 
-    const [posts] = await db.execute(query, [userType, userId, limit, offset]);
+    const [posts] = await db.query(query, [userType, userId, limit, offset]);
 
     const enriched = await Promise.all(
       posts.map(async (post) => {
@@ -264,7 +272,7 @@ exports.getUserPosts = async (req, res) => {
 exports.getUserActivity = async (req, res) => {
   try {
     const { userType, userId } = req.params;
-    const page  = Math.max(parseInt(req.query.page  || 1), 1);
+    const page = Math.max(parseInt(req.query.page || 1), 1);
     const limit = Math.min(parseInt(req.query.limit || 20), 50);
     const offset = (page - 1) * limit;
 
@@ -280,11 +288,7 @@ exports.getUserActivity = async (req, res) => {
       LIMIT ? OFFSET ?
     `;
 
-    const [posts] = await db.execute(query, [
-      userType, userId,
-      userType, userId,
-      limit, offset
-    ]);
+    const [posts] = await db.query(query, [userType, userId, userType, userId, limit, offset]);
 
     const enriched = await Promise.all(
       posts.map(async (post) => {
