@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "message": "Failed to fetch user activity",
+  "error": "Incorrect arguments to mysqld_stmt_execute",
+  "stack": "Error: Incorrect arguments to mysqld_stmt_execute\n    at PromisePool.execute (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\mysql2\\lib\\promise\\pool.js:54:22)\n    at exports.getUserActivity (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\controllers\\postController.js:289:30)\n    at Layer.handleRequest (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\index.js:295:15\n    at param (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\index.js:600:14)\n    at param (E:\\sem-4\\webdev_project\\AlmaMatters\\backend\\node_modules\\router\\index.js:610:14)"
+}
