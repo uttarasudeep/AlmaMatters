@@ -25,3 +25,13 @@ CREATE TABLE IF NOT EXISTS messages (
   FOREIGN KEY (conversation_id) REFERENCES message_conversations(conversation_id) ON DELETE CASCADE,
   INDEX idx_conversation_created (conversation_id, created_at)
 );
+
+CREATE TABLE IF NOT EXISTS comment_likes (
+  like_id     BIGINT PRIMARY KEY AUTO_INCREMENT,
+  comment_id  BIGINT NOT NULL,
+  liker_type  ENUM('student','alumni','admin') NOT NULL,
+  liker_id    BIGINT NOT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_comment_like (comment_id, liker_type, liker_id),
+  FOREIGN KEY (comment_id) REFERENCES post_comments(comment_id) ON DELETE CASCADE
+);

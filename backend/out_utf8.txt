@@ -1,0 +1,5 @@
+﻿Params: ["student",1,"student",1,20,0]
+MySQL Pool Connected
+FULL ERROR MESSAGE: Incorrect arguments to mysqld_stmt_execute
+ERROR CODE: ER_WRONG_ARGUMENTS
+SQL WAS: SELECT p.post_id, p.poster_type, p.poster_id FROM posts p WHERE (p.poster_type = ? AND p.poster_id = ?) OR EXISTS (   SELECT 1 FROM user_followers uf   WHERE uf.follower_type = ? AND uf.follower_id = ?     AND uf.following_type = p.poster_type     AND uf.following_id = p.poster_id     AND uf.status = 'accepted' ) ORDER BY p.created_at DESC LIMIT ? OFFSET ?
