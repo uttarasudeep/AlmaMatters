@@ -9,7 +9,10 @@ import './UserProfile.css';
 
 // --- Helpers ---
 import { PostCard, Avatar } from './HomePage';
-import { deletePost, likePost, unlikePost, addComment, sharePost } from './api';
+import { 
+  deletePost, likePost, unlikePost, addComment, sharePost,
+  getCommunityJoinRequests, handleCommunityJoinRequest 
+} from './api';
 
 export default function UserProfile() {
   const { username, userType, userId } = useParams();
@@ -32,6 +35,7 @@ export default function UserProfile() {
   const [modalUsers, setModalUsers] = useState([]);
   
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [communityRequests, setCommunityRequests] = useState([]);
 
   // Logged-in context
   const currentUser = (() => {
@@ -56,6 +60,9 @@ export default function UserProfile() {
       if (isSelf) {
         const reqs = await getPendingRequests(userType, userId);
         setPendingRequests(reqs.requests || []);
+        
+        const commReqs = await getCommunityJoinRequests(userType, userId);
+        setCommunityRequests(commReqs.requests || []);
       }
     } catch (err) {
       console.error(err);
@@ -152,6 +159,19 @@ export default function UserProfile() {
     console.log('Shared post', postId);
   };
 
+  const handleCommunityRequest = async (req, action) => {
+    try {
+      await handleCommunityJoinRequest(req.community_id, {
+        user_type: req.user_type,
+        user_id: req.user_id,
+        action
+      });
+      setCommunityRequests(prev => prev.filter(r => !(r.community_id === req.community_id && r.user_id === req.user_id)));
+    } catch (err) {
+      console.error("Failed to handle community request:", err);
+    }
+  };
+
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
     try {
@@ -163,8 +183,6 @@ export default function UserProfile() {
       }
     } catch (err) {
       console.error("Failed to delete post:", err);
-      // alert("Failed to delete post."); 
-      // avoiding alert for smooth UI
     }
   };
 
@@ -232,6 +250,28 @@ export default function UserProfile() {
           </div>
         )}
       </div>
+      
+      {/* Community Join Requests (Self Only) */}
+      {isSelf && communityRequests.length > 0 && (
+        <div style={{ background: '#e8f4fd', padding: '20px', borderRadius: '15px', marginBottom: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ margin: '0 0 15px 0', color: '#0073b1' }}>Community Join Requests ({communityRequests.length})</h3>
+          {communityRequests.map((req, idx) => (
+            <div key={`${req.community_id}-${req.user_id}-${idx}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', background: 'white', padding: '10px', borderRadius: '10px', border: '1px solid #eee' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar name={req.requester_name} url={req.requester_avatar} size={30} />
+                <div style={{ marginLeft: '10px' }}>
+                  <div style={{ fontWeight: '500' }}>{req.requester_name} <span style={{color:'#65676b', fontWeight:400}}>wants to join</span></div>
+                  <div style={{ fontSize: '0.85rem', color: '#0073b1', fontWeight:600 }}>#{req.community_name}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '5px' }}>
+                <button onClick={() => handleCommunityRequest(req, 'accept')} style={{ padding: '6px 15px', background: '#0073b1', color: 'white', border: 'none', borderRadius: '15px', cursor: 'pointer', fontWeight: '500', fontSize: '0.85rem' }}>Accept</button>
+                <button onClick={() => handleCommunityRequest(req, 'reject')} style={{ padding: '6px 15px', background: '#f5f6fa', color: '#65676b', border: '1px solid #ddd', borderRadius: '15px', cursor: 'pointer', fontWeight: '500', fontSize: '0.85rem' }}>Decline</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pending Follow Requests Manager (Self Only) */}
       {isSelf && pendingRequests.length > 0 && (

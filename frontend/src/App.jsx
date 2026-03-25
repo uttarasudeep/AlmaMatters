@@ -12,6 +12,7 @@ import Sessions from './components/Sessions';
 import JobsPage from './components/JobsPage';
 import AlumniJobsDashboard from './components/AlumniJobsDashboard';
 import Messages from './components/Messages';
+import Communities from './components/Communities';
 
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
@@ -49,7 +50,7 @@ function App() {
             <Route path="progress" element={<PlaceholderPage title="Progress" />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="alumni-jobs" element={<AlumniJobsDashboard />} />
-            <Route path="communities" element={<PlaceholderPage title="Communities" />} />
+            <Route path="communities" element={<Communities />} />
             <Route path="edit-profile" element={<EditStudentProfile />} />
           </Route>
         </Routes>

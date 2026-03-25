@@ -278,5 +278,31 @@ export const markConversationRead = (conversationId, readerType, readerId) =>
     reader_type: readerType, reader_id: readerId
   }).then(res => res.data);
 
+/*
+=====================================
+COMMUNITIES APIs
+=====================================
+*/
+export const createCommunity = (data) =>
+  API.post("/communities", data).then(res => res.data);
+
+export const getCommunities = (viewerType, viewerId) =>
+  API.get(`/communities?viewer_type=${encodeURIComponent(viewerType)}&viewer_id=${encodeURIComponent(viewerId)}`).then(res => res.data);
+
+export const joinCommunity = (communityId, data) =>
+  API.post(`/communities/${communityId}/join`, data).then(res => res.data);
+
+export const getCommunityJoinRequests = (userType, userId) =>
+  API.get(`/communities/requests?user_type=${encodeURIComponent(userType)}&user_id=${encodeURIComponent(userId)}`).then(res => res.data);
+
+export const handleCommunityJoinRequest = (communityId, data) =>
+  API.post(`/communities/${communityId}/requests/handle`, data).then(res => res.data);
+
+export const getCommunityMessages = (communityId, viewerType, viewerId) =>
+  API.get(`/communities/${communityId}/messages?viewer_type=${encodeURIComponent(viewerType)}&viewer_id=${encodeURIComponent(viewerId)}`).then(res => res.data);
+
+export const sendCommunityMessage = (communityId, data) =>
+  API.post(`/communities/${communityId}/messages`, data).then(res => res.data);
+
 export default API;
 
