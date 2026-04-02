@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./StudentSignup.css"; // Reuse signup styles
 
+const API_BASE = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:3000';
+
 function Field({ label, name, type = "text", placeholder, value, onChange, required, disabled }) {
     return (
         <div className="field-group">
@@ -71,7 +73,7 @@ export default function EditStudentProfile() {
                     setLoading(false);
                     return;
                 }
-                const res = await fetch(`http://localhost:3000/api/students/profile/${storedUser.id}`);
+                const res = await fetch(`${API_BASE}/api/students/profile/${storedUser.id}`);
                 if (!res.ok) throw new Error("Failed to load profile.");
                 const data = await res.json();
                 setSteps(prev => ({
@@ -141,7 +143,7 @@ export default function EditStudentProfile() {
         setSuccessMsg("");
         try {
             const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-            const res = await fetch(`http://localhost:3000/api/students/profile/${storedUser.id}`, {
+            const res = await fetch(`${API_BASE}/api/students/profile/${storedUser.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(steps)
@@ -211,7 +213,7 @@ export default function EditStudentProfile() {
                                         const fd = new FormData();
                                         fd.append("profile_photo", e.target.files[0]);
                                         try {
-                                            const res = await fetch("http://localhost:3000/api/upload", { method: "POST", body: fd });
+                                            const res = await fetch(`${API_BASE}/api/upload`, { method: "POST", body: fd });
                                             const data = await res.json();
                                             if(data.url) {
                                                 setSteps(prev => ({...prev, step2: {...prev.step2, profile_photo_url: data.url}}));
@@ -223,7 +225,7 @@ export default function EditStudentProfile() {
                                 }} className="field-input" />
                                 {s2.profile_photo_url && (
                                     <div style={{marginTop:'10px'}}>
-                                        <img src={`http://localhost:3000${s2.profile_photo_url}`} alt="Preview" style={{width:'80px', height:'80px', objectFit:'cover', borderRadius:'50%'}} />
+                                        <img src={`${API_BASE}${s2.profile_photo_url}`} alt="Preview" style={{width:'80px', height:'80px', objectFit:'cover', borderRadius:'50%'}} />
                                     </div>
                                 )}
                             </div>

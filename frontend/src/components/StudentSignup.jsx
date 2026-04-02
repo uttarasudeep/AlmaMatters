@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./StudentSignup.css";
 import { registerFull, checkRollNumberExists } from "./api";
 
+const API_BASE = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:3000';
+
 function Field({ label, name, type = "text", placeholder, value, onChange, required }) {
     return (
         <div className="field-group">
@@ -208,7 +210,7 @@ export default function StudentSignup() {
                                         const fd = new FormData();
                                         fd.append("profile_photo", e.target.files[0]);
                                         try {
-                                            const res = await fetch("http://localhost:3000/api/upload", { method: "POST", body: fd });
+                                            const res = await fetch(`${API_BASE}/api/upload`, { method: "POST", body: fd });
                                             const data = await res.json();
                                             if(data.url) {
                                                 setSteps(prev => ({...prev, step2: {...prev.step2, profile_photo_url: data.url}}));
