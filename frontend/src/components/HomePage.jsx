@@ -365,6 +365,7 @@ export default function HomePage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadPosts(1, true); }, []);
 
   const handleLike = (postId) => {

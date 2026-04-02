@@ -19,19 +19,6 @@ function Field({ label, name, type = "text", placeholder, value, onChange, requi
   );
 }
 
-function SelectField({ label, name, options, value, onChange, required }) {
-  return (
-    <div className="field-group">
-      <label htmlFor={name} className="field-label">
-        {label}{required && <span className="required-star"> *</span>}
-      </label>
-      <select id={name} name={name} value={value || ""} onChange={onChange} className="field-input">
-        <option value="">— Select {label} —</option>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
-      </select>
-    </div>
-  );
-}
 
 const STEP_LABELS = ["Roll Number", "Professional", "Work", "Higher Studies", "Academic", "Address", "Login"];
 

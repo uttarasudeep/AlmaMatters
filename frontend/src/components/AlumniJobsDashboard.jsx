@@ -9,6 +9,7 @@ function ApplicantsModal({ job, onClose }) {
 
   useEffect(() => {
     loadApplicants();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job]);
 
   const loadApplicants = async () => {

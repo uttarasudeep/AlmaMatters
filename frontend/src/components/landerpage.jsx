@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./landerpage.css";
 import { Link } from "react-router-dom";
 import logoimg from "../assets/almamatterslogo.jpeg";
-import heroimg1 from "../assets/heroimg1.jpeg";
-import heroimg2 from "../assets/heroimg2.jpeg";
-import heroimg3 from "../assets/heroimg3.jpeg";
-import heroimg4 from "../assets/heroimg4.jpeg";
+
 import image1 from "../assets/image1.jpg";
 import image2 from "../assets/image2.jpg";
 import image3 from "../assets/image3.jpg";

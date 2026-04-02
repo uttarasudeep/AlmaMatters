@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
     getCommunities, 
     createCommunity, 
@@ -8,10 +7,9 @@ import {
     sendCommunityMessage 
 } from './api';
 import './Communities.css';
-import { Avatar, timeAgo } from './HomePage';
+
 
 export default function Communities() {
-    const navigate = useNavigate();
     const [communities, setCommunities] = useState([]);
     const [activeTab, setActiveTab] = useState('discover'); // 'discover' or 'my'
     const [selectedComm, setSelectedComm] = useState(null);
@@ -19,7 +17,7 @@ export default function Communities() {
     const [newMessage, setNewMessage] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [form, setForm] = useState({ name: '', description: '' });
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false); // eslint-disable-line no-unused-vars
     const chatEndRef = useRef(null);
 
     const currentUser = (() => {
@@ -49,6 +47,7 @@ export default function Communities() {
 
     useEffect(() => {
         loadCommunities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -58,6 +57,7 @@ export default function Communities() {
             const interval = setInterval(() => loadMessages(selectedComm.community_id), 3000);
             return () => clearInterval(interval);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedComm]);
 
     useEffect(() => {

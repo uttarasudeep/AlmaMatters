@@ -33,7 +33,7 @@ export default function Signup() {
 
       <div className="signup-card">
 
-        <img src={logo} className="signup-logo" />
+        <img src={logo} alt="AlmaMatters Logo" className="signup-logo" />
 
         <h2>Sign Up</h2>
 

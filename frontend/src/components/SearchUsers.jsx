@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { searchUsers } from './api';
 //import './SearchUsers.css'; // Let's create some simple styles if needed, or use inline
