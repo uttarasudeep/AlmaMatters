@@ -535,7 +535,10 @@
   border-color: var(--ocean-blue);
   color: var(--ocean-blue);
 }
-
+.no-anim {
+  transition: none !important;
+  transform: none !important;
+}
 
 /* ===================================================
    RESPONSIVE
