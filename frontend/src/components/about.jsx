@@ -62,6 +62,44 @@ function About() {
         </div>
 
       </section>
+      {/* TEAM SECTION */}
+<section className="team-section">
+
+  <h2 className="team-title">Behind AlmaMatters</h2>
+
+  <p className="team-subtitle">
+    AlmaMatters is built by a passionate group of developers who believe in
+    transforming student–alumni connections into meaningful career opportunities.
+    Every feature is designed, developed, and refined collaboratively.
+  </p>
+
+  <div className="team-grid">
+
+    <div className="team-card">
+      <h3>Backend Engineering</h3>
+      <p className="team-name">Sajin</p>
+      <p className="team-name">Abishek</p>
+      <p className="team-role">
+        Designed and implemented secure APIs, database architecture,
+        authentication systems, and core server-side logic ensuring
+        scalability and performance.
+      </p>
+    </div>
+
+    <div className="team-card">
+      <h3>Frontend Engineering</h3>
+      <p className="team-name">Uttra</p>
+      <p className="team-name">Keshika</p>
+      <p className="team-role">
+        Crafted an intuitive and responsive user interface with a strong
+        focus on user experience, accessibility, and seamless interaction
+        across all modules.
+      </p>
+    </div>
+
+  </div>
+
+</section>
 
     </div>
   );
