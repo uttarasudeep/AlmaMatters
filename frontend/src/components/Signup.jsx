@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Signup.css";
 import { useNavigate } from "react-router-dom";
 
-import logo from "../assets/almamatterslogowithname.jpeg";
+import logo from "../assets/silverlogowithname.png";
 
 export default function Signup() {
 

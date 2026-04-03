@@ -13,6 +13,8 @@ import JobsPage from './components/JobsPage';
 import AlumniJobsDashboard from './components/AlumniJobsDashboard';
 import Messages from './components/Messages';
 import Communities from './components/Communities';
+import About from './components/about.jsx';
+import Contact from './components/contactus.jsx';
 
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
@@ -38,6 +40,8 @@ function App() {
           <Route path="/signup/alumni" element={<AlumniSignup />} />
           <Route path="/signup/admin" element={<AdminSignup />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
 
           {/* Protected pages – all require a username in the URL */}
           <Route path="/:username" element={<UserLayout />}>
