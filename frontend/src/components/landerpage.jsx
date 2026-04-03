@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./landerpage.css";
 import { Link } from "react-router-dom";
-import logoimg from "../assets/almamatterslogo.jpeg";
+import logoimg from "../assets/logowithblue.png";
 
 import image1 from "../assets/image1.jpg";
 import image2 from "../assets/image2.jpg";
@@ -12,7 +12,7 @@ import image4 from "../assets/image4.jpg";
 // import iimb from "../assets/iimb.png";
 // import iisc from "../assets/iisc.png";
 // import bits from "../assets/bits.png";
-import heroimg5 from "../assets/almamatterslogowithname.jpeg";
+import heroimg5 from "../assets/silverlogowithname.png";
 
 /* ── slide metadata ─────────────────────────────────────── */
 const slides = [
@@ -150,7 +150,9 @@ export default function LandingPage() {
             <div className={slideClass()}>
               <img src={slides[current].src} alt={slides[current].alt} className="carousel-img" />
               <div className="carousel-overlay">
+               {slides[current].tag !== "About Us" && (
                 <span className="carousel-tag">{slides[current].tag}</span>
+                )}
                 <p className="carousel-hint">Click to explore →</p>
               </div>
             </div>
@@ -187,7 +189,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </div> */}
+        </div>  */}
       </main>
 
       {/* ══════════ SPLIT-PANEL MODAL ══════════ */}
