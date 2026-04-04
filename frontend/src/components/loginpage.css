@@ -1,9 +1,16 @@
-/* ── Shared variables ────────────────────────────────────────── */
+/* ── Shared variables ──────────────────────────────────────────
 :root {
   --alpine-green: #1a5c45;
   --gold:         #c9933a;
   --white:        #ffffff;
   --nav-gradient: linear-gradient(135deg, #1a5c45 0%, #2e8c6a 100%);
+} */
+ :root {
+  --mid-blue:   #131e30;
+  --denim-blue: #1c65a0;
+  --ocean-blue: #8fb6d8;
+  --white:      #ffffff;
+  --nav-gradient: linear-gradient(90deg,#0f2027,#2c5364);
 }
 
 /* ── Page ────────────────────────────────────────────────────── */
@@ -12,7 +19,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--nav-gradient);
+  background: linear-gradient(90deg,#0f2027,#2c5364);
   padding: 40px 20px;
 }
 
