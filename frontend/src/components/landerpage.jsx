@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./landerpage.css";
 import { Link } from "react-router-dom";
-import logoimg from "../assets/almamatterslogo.jpeg";
-import heroimg1 from "../assets/heroimg1.jpeg";
-import heroimg2 from "../assets/heroimg2.jpeg";
-import heroimg3 from "../assets/heroimg3.jpeg";
-import heroimg4 from "../assets/heroimg4.jpeg";
+import logoimg from "../assets/logowithblue.png";
+
 import image1 from "../assets/image1.jpg";
 import image2 from "../assets/image2.jpg";
 import image3 from "../assets/image3.jpg";
@@ -15,7 +12,8 @@ import image4 from "../assets/image4.jpg";
 // import iimb from "../assets/iimb.png";
 // import iisc from "../assets/iisc.png";
 // import bits from "../assets/bits.png";
-import heroimg5 from "../assets/almamatterslogowithname.jpeg";
+import heroimg5 from "../assets/silverlogowithname.png";
+//import name from "../assets/name.png"
 
 /* ── slide metadata ─────────────────────────────────────── */
 const slides = [
@@ -70,6 +68,7 @@ export default function LandingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalSlide, setModalSlide] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [noModalAnim, setNoModalAnim] = useState(false);
 
   /* ── carousel navigation ── */
   const goTo = (idx, dir) => {
@@ -87,19 +86,29 @@ export default function LandingPage() {
   const next = () => goTo((current + 1) % slides.length, "next");
 
   /* ── modal open / close ── */
-  const openModal = (slide) => {
-    setModalSlide(slide);
-    setModalOpen(true);
-    setTimeout(() => setModalVisible(true), 20);
-  };
+const openModal = (slide) => {
+  setModalSlide(slide);
+  setModalOpen(true);
 
+  // disable animation only for About Us
+  const skipAnim = slide.tag === "About Us";
+  setNoModalAnim(skipAnim);
+
+  if (skipAnim) {
+    setModalVisible(true); // instantly show
+  } else {
+    setTimeout(() => setModalVisible(true), 20);
+  }
+};
   const closeModal = () => {
-    setModalVisible(false);
-    setTimeout(() => {
-      setModalOpen(false);
-      setModalSlide(null);
-    }, 500);
-  };
+  setModalVisible(false);
+
+  setTimeout(() => {
+    setModalOpen(false);
+    setModalSlide(null);
+    setNoModalAnim(false);
+  }, 500);
+};
 
   /* close on Escape */
   useEffect(() => {
@@ -149,12 +158,22 @@ export default function LandingPage() {
           </button>
 
           {/* Slide */}
-          <div className="carousel-viewport" onClick={() => openModal(slides[current])}>
+          <div className="carousel-viewport" onClick={() => {
+          if (slides[current].tag !== "About Us") {
+            openModal(slides[current]);
+          }
+          }}
+>
             <div className={slideClass()}>
               <img src={slides[current].src} alt={slides[current].alt} className="carousel-img" />
               <div className="carousel-overlay">
-                <span className="carousel-tag">{slides[current].tag}</span>
-                <p className="carousel-hint">Click to explore →</p>
+              {slides[current].tag !== "About Us" && (
+            <span className="carousel-tag">{slides[current].tag}</span>
+                )}
+
+              {slides[current].tag !== "About Us" && (
+              <p className="carousel-hint">Click to explore →</p>
+                )}
               </div>
             </div>
           </div>
@@ -190,7 +209,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </div> */}
+        </div>  */}
       </main>
 
       {/* ══════════ SPLIT-PANEL MODAL ══════════ */}
@@ -199,13 +218,13 @@ export default function LandingPage() {
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
 
             {/* TOP PANEL — slides in from above */}
-            <div className={`modal-panel modal-top ${modalVisible ? "panel-top-in" : ""}`}>
+            <div className={`modal-panel modal-top ${noModalAnim ? "no-anim" : ""} ${modalVisible ? "panel-top-in" : ""}`}>
               <img src={modalSlide.src} alt={modalSlide.alt} className="modal-img" />
               <button className="modal-close" onClick={closeModal} aria-label="Close">✕</button>
             </div>
 
             {/* BOTTOM PANEL — slides in from below */}
-            <div className={`modal-panel modal-bottom ${modalVisible ? "panel-bottom-in" : ""}`}>
+            <div className={`modal-panel modal-bottom ${noModalAnim ? "no-anim" : ""} ${modalVisible ? "panel-bottom-in" : ""}`}>
               <span className="modal-tag">{modalSlide.tag}</span>
               <h2 className="modal-title">{modalSlide.title}</h2>
               <p className="modal-desc">{modalSlide.description}</p>

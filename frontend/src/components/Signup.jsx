@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Signup.css";
 import { useNavigate } from "react-router-dom";
 
-import logo from "../assets/almamatterslogowithname.jpeg";
+import logo from "../assets/silverlogowithname.png";
 
 export default function Signup() {
 
@@ -33,7 +33,7 @@ export default function Signup() {
 
       <div className="signup-card">
 
-        <img src={logo} className="signup-logo" />
+        <img src={logo} alt="AlmaMatters Logo" className="signup-logo" />
 
         <h2>Sign Up</h2>
 

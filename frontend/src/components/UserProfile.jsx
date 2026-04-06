@@ -21,6 +21,7 @@ export default function UserProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [followStatus, setFollowStatus] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [reverseStatus, setReverseStatus] = useState(null);
   const [error, setError] = useState('');
 
@@ -94,10 +95,12 @@ export default function UserProfile() {
 
   useEffect(() => {
     loadProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userType, userId]);
 
   useEffect(() => {
     if (profile) loadTabContent(activeTab);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, profile, userType, userId]);
 
   const handleAction = async (action, targetOverride = null) => {

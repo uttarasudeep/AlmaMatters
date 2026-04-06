@@ -1,198 +1,109 @@
-/* USE YOUR ROOT VARIABLES */
-
-.signup-container {
-
-  height: 100vh;
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  background: var(--nav-gradient);
-
+:root {
+  --mid-blue:   #131e30;
+  --denim-blue: #1c65a0;
+  --ocean-blue: #8fb6d8;
+  --white:      #ffffff;
+  --nav-gradient: linear-gradient(90deg, #0f2027, #2c5364);
 }
 
-
+/* CONTAINER */
+.signup-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background:linear-gradient(90deg, #0f2027, #2c5364);
+}
 
 /* CARD */
-
 .signup-card {
-
-  background: var(--white);
-
+  background: linear-gradient(90deg, #0f2027, #2c5364);
   padding: 40px;
-
   border-radius: 12px;
-
   width: 400px;
-
   text-align: center;
-
   box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
-
 }
-
-
 
 /* LOGO */
-
 .signup-logo {
-
   width: 200px;
-
   margin-bottom: 10px;
-
 }
-
-
 
 /* TEXT */
-
 .signup-card h2 {
-
-  color: var(--alpine-green);
-
+  color: var(--mid-blue);
 }
-
 
 .subtitle {
-
-  color: var(--gold);
-
+  color: var(--denim-blue);
   margin-bottom: 5px;
-
 }
-
 
 .subtitle2 {
-
-  color: var(--alpine-green);
-
+  color: var(--mid-blue);
   margin-bottom: 20px;
-
   font-size: 14px;
-
 }
-
-
 
 /* ROLE CONTAINER */
-
 .roles {
-
   display: flex;
-
   gap: 15px;
-
   justify-content: center;
-
   margin-bottom: 25px;
-
 }
-
-
 
 /* ROLE CARD */
-
 .role-card {
-
   border: 2px solid transparent;
-
   padding: 15px;
-
   border-radius: 10px;
-
   cursor: pointer;
-
   width: 110px;
-
   transition: all 0.3s ease;
-
-  background: #f8f5ee;
-
+  background: #f0f4f8;
 }
-
-
 
 /* HOVER */
-
 .role-card:hover {
-
-  border-color: var(--creme);
-
+  border-color: var(--ocean-blue);
   transform: translateY(-3px);
-
 }
-
-
 
 /* ACTIVE */
-
 .role-card.active {
-
-  border-color: var(--alpine-green);
-
-  background: #e8dfc8;
-
+  border-color: var(--denim-blue);
+  background: #dbeafe;
 }
-
-
 
 /* ROLE TEXT */
-
 .role-card h3 {
-
-  color: var(--alpine-green);
-
+  color: var(--mid-blue);
 }
-
 
 .role-card p {
-
-  color: var(--gold);
-
+  color: var(--denim-blue);
   font-size: 13px;
-
 }
-
-
 
 /* NEXT BUTTON */
-
 .next-btn {
-
   width: 100%;
-
   padding: 12px;
-
-  background: var(--alpine-green);
-
+  background: #131e30 ;
   color: var(--white);
-
   border: none;
-
   border-radius: 8px;
-
   cursor: pointer;
-
   font-size: 16px;
-
   font-weight: 600;
-
   transition: 0.3s;
-
 }
 
-
-
 /* BUTTON HOVER */
-
 .next-btn:hover {
-
-  background: var(--gold);
-
+  background:#1c65a0;
   color: var(--white);
-
 }
