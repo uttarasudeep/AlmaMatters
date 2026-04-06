@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@400;600;700&display=swap');
+
+:root {
+  --mid-blue:     #131e30;
+  --denim-blue:   #1c65a0;
+  --ocean-blue:   #8fb6d8;
+  --white:        #ffffff;
+  --nav-gradient: linear-gradient(90deg, #0f2027, #2c5364);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page ── */
+.su-page {
+  min-height: 100vh;
+  background: var(--mid-blue);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.su-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(28, 101, 160, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 10% 80%, rgba(143, 182, 216, 0.12) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.su-container {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ── Back Button ── */
+.su-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(143, 182, 216, 0.1);
+  border: 1px solid rgba(143, 182, 216, 0.2);
+  color: var(--ocean-blue);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  margin-bottom: 40px;
+  letter-spacing: 0.01em;
+}
+.su-back-btn:hover {
+  background: rgba(143, 182, 216, 0.18);
+  border-color: rgba(143, 182, 216, 0.4);
+  transform: translateX(-2px);
+}
+.su-back-btn svg {
+  flex-shrink: 0;
+}
+
+/* ── Header ── */
+.su-header {
+  margin-bottom: 32px;
+}
+.su-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.su-title span {
+  background:  #8fb6d8;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.su-subtitle {
+  margin-top: 8px;
+  color: rgba(143, 182, 216, 0.6);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+/* ── Search Bar ── */
+.su-search-wrap {
+  position: relative;
+  margin-bottom: 32px;
+}
+.su-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ocean-blue);
+  opacity: 0.6;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.su-input {
+  width: 100%;
+  padding: 16px 52px 16px 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(143, 182, 216, 0.2);
+  border-radius: 16px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.su-input::placeholder {
+  color: rgba(143, 182, 216, 0.35);
+}
+.su-input:focus {
+  border-color: rgba(143, 182, 216, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(143, 182, 216, 0.07), 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Loading Dots ── */
+.su-loading-indicator {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.su-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ocean-blue);
+  animation: su-bounce 1s infinite;
+}
+.su-dot:nth-child(2) { animation-delay: 0.15s; }
+.su-dot:nth-child(3) { animation-delay: 0.30s; }
+
+@keyframes su-bounce {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50%       { opacity: 1;   transform: translateY(-4px); }
+}
+
+/* ── Divider ── */
+.su-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: rgba(143, 182, 216, 0.4);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.su-divider::before,
+.su-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(143, 182, 216, 0.12);
+}
+
+/* ── Results List ── */
+.su-results {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.su-result-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(143, 182, 216, 0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.15s;
+  animation: su-fadeIn 0.2s ease;
+}
+.su-result-item:hover {
+  background: rgba(143, 182, 216, 0.08);
+  border-color: rgba(143, 182, 216, 0.25);
+  transform: translateX(4px);
+}
+
+@keyframes su-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Avatars ── */
+.su-avatar-img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(143, 182, 216, 0.2);
+  flex-shrink: 0;
+}
+.su-avatar-placeholder {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--nav-gradient);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(143, 182, 216, 0.2);
+}
+
+/* ── User Info ── */
+.su-info {
+  flex: 1;
+  min-width: 0;
+}
+.su-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.su-username {
+  font-size: 0.8rem;
+  color: rgba(143, 182, 216, 0.5);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Badges ── */
+.su-badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.su-badge-alumni {
+  background: rgba(28, 101, 160, 0.25);
+  color: var(--ocean-blue);
+  border: 1px solid rgba(28, 101, 160, 0.4);
+}
+.su-badge-student {
+  background: rgba(143, 182, 216, 0.12);
+  color: rgba(143, 182, 216, 0.85);
+  border: 1px solid rgba(143, 182, 216, 0.25);
+}
+
+/* ── Empty States ── */
+.su-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60px;
+  gap: 14px;
+  animation: su-fadeIn 0.3s ease;
+}
+.su-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(143, 182, 216, 0.06);
+  border: 1px dashed rgba(143, 182, 216, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+.su-empty-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+}
+.su-empty-sub {
+  font-size: 0.85rem;
+  color: rgba(143, 182, 216, 0.35);
+  text-align: center;
+  max-width: 260px;
+  line-height: 1.6;
+}
